@@ -176,6 +176,23 @@ body::after{
 }
 .vernote.show{transform:translateX(-50%) translateY(0)}
 
+
+/* ============ NEON NAME TRIBUTE ============ */
+.tribute{
+  position:fixed;z-index:1;pointer-events:none;opacity:0;text-align:center;
+}
+.tribute .tname{
+  font-family:var(--script);font-size:clamp(30px,6vw,54px);line-height:1;color:#FF4D5A;
+  text-shadow:0 0 8px #FF2E3C,0 0 24px rgba(255,46,60,.95),0 0 64px rgba(255,46,60,.55),0 2px 0 rgba(90,0,10,.6);
+}
+.tribute .tsub{
+  font-family:var(--disp);font-size:10px;letter-spacing:.32em;color:#FFD9DC;margin-top:4px;text-transform:uppercase;
+  text-shadow:0 0 10px rgba(255,70,90,.8);
+}
+.tribute.on{animation:neonin 1s linear forwards,neonhum 5s linear 1.2s infinite}
+@keyframes neonin{0%{opacity:0}8%{opacity:.9}12%{opacity:.15}18%{opacity:1}24%{opacity:.25}30%{opacity:1}100%{opacity:1}}
+@keyframes neonhum{0%,58%,100%{opacity:1}60%{opacity:.5}62%{opacity:1}83%{opacity:.75}85%{opacity:1}}
+
 /* ============ LAYOUT ============ */
 .screen{display:none;min-height:100vh;min-height:100dvh;position:relative;z-index:1;flex-direction:column;align-items:center;padding:22px 18px 150px}
 .screen.active{display:flex;animation:screenIn .45s var(--ease)}
@@ -607,7 +624,8 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 </div>
 <div class="synctoast" id="synctoast"></div>
 <div class="vernote" id="verNote">The game was updated. Please close this tab and open the link from the Teams chat again.</div>
-<div class="vstamp">V6</div>
+<div class="vstamp">V7</div>
+<div class="tribute" id="tribute"><div class="tname" id="tribName"></div><div class="tsub">★ In the house ★</div></div>
 
 <!-- ============ WELCOME ============ -->
 <section class="screen active" id="s-welcome">
@@ -698,7 +716,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
       <button class="btn btn-glass btn-wide" id="btnCopy" onclick="copyLink()">Copy the link</button>
       <button class="btn btn-primary btn-wide" id="btnStart" onclick="hostStartGame()">Start the game</button>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V6 in the bottom corner.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V7 in the bottom corner.</p>
   </div>
 </section>
 
@@ -730,7 +748,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
       </button>
     </div>
     <div class="lockline" id="lockline"></div>
-    <div class="countwrap"><button class="countchip" id="countChip" onclick="startCount()">Start a 15 second timer</button></div>
+    <div class="countwrap"><button class="countchip" id="countChip" onclick="startCount()">Start a 1 minute timer</button></div>
 
     <div class="reveal" id="reveal">
       <div class="resultbadge" id="resultBadge"></div>
@@ -773,7 +791,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <div class="entryrows" id="entryRows"></div>
     <div class="entryform">
       <input class="fn" id="entryName" maxlength="16" placeholder="Name" autocomplete="off">
-      <input class="fs" id="entryScore" type="number" min="0" max="100" step="10" placeholder="Score">
+      <input class="fs" id="entryScore" type="number" min="0" max="120" step="10" placeholder="Score">
       <button class="btn btn-glass" style="padding:12px 18px" onclick="addEntry()">Add</button>
     </div>
     <div class="welcome-btns" style="margin-top:26px">
@@ -829,7 +847,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
 
-const BUILD = "6";
+const BUILD = "7";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -921,7 +939,25 @@ const Q = [
   did:"Founder Stewart Butterfield closed the game and launched the chat tool as Slack.",
   happened:"Slack became one of the fastest-growing work tools ever. It later sold for 27.7 billion dollars.",
   fact:"He had done this before. His first failed game became Flickr.",
-  lesson:"A failed project can hide your next big product."}
+  lesson:"A failed project can hide your next big product."},
+
+ {chip:"2006 · KYOTO",
+  text:"Sony and Microsoft are building monster machines for serious gamers. Your new console is far weaker, but it has a strange motion stick that anyone, even grandparents, can wave around.",
+  A:"Join the power race. Match their graphics.", B:"Ship the weak little box with the motion stick.",
+  correct:"B", company:"Nintendo Wii",
+  did:"Nintendo shipped the Wii, priced it low, and aimed it at whole families.",
+  happened:"It outsold both rivals that generation, over 100 million consoles.",
+  fact:"Wii Sports bowling became a hit inside retirement homes. Grandparents formed leagues.",
+  lesson:"You do not have to win the race everyone else is running."},
+
+ {chip:"1997 · CUPERTINO",
+  text:"You just returned to the company you founded. It is 90 days from running out of money, and it sells about 350 different products. You draw a simple two-by-two grid on a whiteboard: four squares.",
+  A:"Keep the range. More products, more chances.", B:"Kill almost everything. Build only four great products.",
+  correct:"B", company:"Apple, 1997",
+  did:"Steve Jobs cut about 70 percent of the products, down to just four.",
+  happened:"Apple was profitable again within a year, and later became the most valuable company on Earth.",
+  fact:"Rival Michael Dell said Apple should shut down and give the money back to shareholders.",
+  lesson:"Saying no is the sharpest product decision."}
 ];
 const N = Q.length;
 
@@ -950,6 +986,32 @@ let toastT = null;
   }catch(e){}
 })();
 
+
+/* ================= NEON NAME TRIBUTES ================= */
+const TRIB = ["Tejini","Shehaan","Shubhra","Ganesh","Ganapathi","Bharath","Bo","Phoenix","Timothy","Sarah","Sapna","Sam"];
+const TRIBPOS = [
+ {l:"4%",t:"9%",rot:-5},{rr:"4%",t:"11%",rot:4},{l:"7%",t:"20%",rot:-3},{rr:"6%",t:"19%",rot:5},
+ {l:"3%",t:"13%",rot:3},{rr:"8%",t:"24%",rot:-4},{l:"8%",t:"23%",rot:4},{rr:"3%",t:"9%",rot:-5},
+ {l:"5%",t:"17%",rot:-2},{rr:"5%",t:"15%",rot:3},{l:"6%",t:"26%",rot:5},{rr:"7%",t:"12%",rot:-3}
+];
+function renderTribute(qi){
+  const el = document.getElementById("tribute");
+  if(!el) return;
+  const name = TRIB[qi % TRIB.length];
+  const p = TRIBPOS[qi % TRIBPOS.length];
+  document.getElementById("tribName").textContent = name;
+  el.style.left = p.l || "auto";
+  el.style.right = p.rr || "auto";
+  el.style.top = p.t;
+  el.style.transform = "rotate(" + p.rot + "deg)";
+  el.classList.remove("on");
+  try{ void el.offsetWidth; }catch(e){}
+  el.classList.add("on");
+}
+function hideTribute(){
+  const el = document.getElementById("tribute");
+  if(el) el.classList.remove("on");
+}
 /* ================= SAFE LOCAL SAVE ================= */
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
@@ -1063,6 +1125,7 @@ function writeFailToast(){
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  if(id !== "s-game") hideTribute();
   try{ window.scrollTo(0,0); }catch(e){}
 }
 function hueOf(str){ let h=0; for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))%360; return h; }
@@ -1270,7 +1333,7 @@ function addEntry(){
   const nEl = document.getElementById("entryName"), sEl = document.getElementById("entryScore");
   const name = nEl.value.trim(), score = parseInt(sEl.value);
   if(!name || isNaN(score)) return;
-  entryList.push({name, score: Math.max(0, Math.min(100, score))});
+  entryList.push({name, score: Math.max(0, Math.min(120, score))});
   nEl.value = ""; sEl.value = ""; nEl.focus();
   saveEntries();
   renderEntries();
@@ -1321,8 +1384,8 @@ function setDock(mode, qi){
 let countT = null;
 function startCount(){
   const chip = document.getElementById("countChip");
-  if(countT){ clearInterval(countT); countT = null; chip.textContent = "Start a 15 second timer"; chip.className = "countchip"; return; }
-  let left = 15;
+  if(countT){ clearInterval(countT); countT = null; chip.textContent = "Start a 1 minute timer"; chip.className = "countchip"; return; }
+  let left = 60;
   chip.textContent = left + " seconds…";
   chip.className = "countchip hot";
   countT = setInterval(()=>{
@@ -1338,7 +1401,7 @@ function startCount(){
 function resetCount(){
   if(countT){ clearInterval(countT); countT = null; }
   const chip = document.getElementById("countChip");
-  if(chip){ chip.textContent = "Start a 15 second timer"; chip.className = "countchip"; }
+  if(chip){ chip.textContent = "Start a 1 minute timer"; chip.className = "countchip"; }
 }
 
 /* ================= PLAYER ================= */
@@ -1466,9 +1529,10 @@ function renderQuestionBase(qi){
     el.classList.remove("picked","faded","correct","wrongpick");
     el.disabled = (role === "host");
   });
-  document.getElementById("lockline").textContent = (role==="player") ? "Tap A or B to lock your call." : "Read the question out loud, then give them 15 seconds.";
+  document.getElementById("lockline").textContent = (role==="player") ? "Tap A or B to lock your call." : "Read the question out loud, then give them one minute.";
   document.getElementById("reveal").classList.remove("show");
   document.getElementById("resultBadge").className = "resultbadge";
+  renderTribute(qi);
   resetCount();
 }
 function renderReveal(g){
