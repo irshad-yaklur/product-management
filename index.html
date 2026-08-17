@@ -307,6 +307,10 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .linkcard .lk{font-family:var(--disp);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
 .linkcard .lu{font-weight:600;font-size:14.5px;word-break:break-all;color:var(--ink)}
 .linkcard .lkey{font-size:13px;font-weight:600;color:var(--mint);margin-top:7px;text-shadow:0 0 10px rgba(61,255,180,.6)}
+.chanline{margin-top:11px;font-size:13.5px;font-weight:600;min-height:18px}
+.chanline.ok{color:var(--mint);text-shadow:0 0 10px rgba(61,255,180,.5)}
+.chanline.warn{color:var(--gold)}
+.chanline.bad{color:#FFB4C4}
 .avatar{
   width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;color:#fff;flex:none;text-transform:uppercase;
@@ -623,15 +627,16 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
   </svg></div>
 </div>
 <div class="synctoast" id="synctoast"></div>
-<div class="vernote" id="verNote">The game was updated. Please close this tab and open the link from the Teams chat again.</div>
-<div class="vstamp">V7</div>
+<div class="vernote" id="keyNote"></div>
+<div class="vernote" id="verNote" style="bottom:118px">The game was updated. Please close this tab and open the link from the Teams chat again.</div>
+<div class="vstamp">V8</div>
 <div class="tribute" id="tribute"><div class="tname" id="tribName"></div><div class="tsub">★ In the house ★</div></div>
 
 <!-- ============ WELCOME ============ -->
 <section class="screen active" id="s-welcome">
   <div class="col">
     <div class="orb"></div>
-    <div class="eyebrow">Ten real product decisions</div>
+    <div class="eyebrow">Twelve real product decisions</div>
     <h1 style="margin-top:12px">Hard <span class="grad">Calls</span></h1>
     <p class="sub" style="margin-top:14px">Real companies, at the moment of a big decision. You choose. History gives the answer.</p>
     <div class="credit">a game by<b>Irshad Yaklur</b></div>
@@ -711,12 +716,13 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
       <div class="lk">Share this link in the Teams chat</div>
       <div class="lu" id="shareUrl"></div>
       <div class="lkey" id="shareKeyNote" style="display:none">Player key added to the link ✓</div>
+      <div class="chanline" id="chanStatus"></div>
     </div>
     <div class="welcome-btns" style="margin-top:22px">
       <button class="btn btn-glass btn-wide" id="btnCopy" onclick="copyLink()">Copy the link</button>
       <button class="btn btn-primary btn-wide" id="btnStart" onclick="hostStartGame()">Start the game</button>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V7 in the bottom corner.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V8 in the bottom corner.</p>
   </div>
 </section>
 
@@ -809,7 +815,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <h2 style="margin-top:12px">High <span class="grad">scores</span></h2>
     <div class="lb" id="lbList"></div>
     <div class="welcome-btns" style="margin-top:30px">
-      <button class="btn btn-primary btn-wide" onclick="showLessons()">See all 10 lessons</button>
+      <button class="btn btn-primary btn-wide" onclick="showLessons()">See all 12 lessons</button>
       <button class="btn btn-ghost hostonly" id="btnPlayAgain" onclick="hostRestart()">Play again · new game</button>
     </div>
   </div>
@@ -819,7 +825,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <section class="screen" id="s-lessons">
   <div class="col">
     <div class="eyebrow" style="margin-top:20px">Take these back to work</div>
-    <h2 style="margin-top:12px">The 10 <span class="grad">lessons</span></h2>
+    <h2 style="margin-top:12px">The 12 <span class="grad">lessons</span></h2>
     <div class="lessonlist" id="lessonList"></div>
     <div class="welcome-btns" style="margin-top:26px">
       <button class="btn btn-glass btn-wide" onclick="show('s-board')">Back to results</button>
@@ -847,7 +853,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
 
-const BUILD = "7";
+const BUILD = "8";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -1032,48 +1038,56 @@ function deriveRepo(){
 }
 
 /* ================= SYNC · PLAYER READ ================= */
+let lastReadStatus = 0, keyBad = false;
 function contentsURL(){
   return "https://api.github.com/repos/" + gh.owner + "/" + gh.repo + "/contents/" + STATE_PATH + "?ref=" + gh.branch;
 }
 async function readState(){
-  const headers = {"Accept":"application/vnd.github.raw"};
-  if(playerKey) headers["Authorization"] = "Bearer " + playerKey;
-  if(etag) headers["If-None-Match"] = etag;
   try{
+    const headers = {"Accept":"application/vnd.github.raw"};
+    if(playerKey) headers["Authorization"] = "Bearer " + playerKey;
+    if(etag) headers["If-None-Match"] = etag;
     const r = await fetch(contentsURL(), {headers, cache:"no-store"});
+    lastReadStatus = r.status;
     if(r.status === 304){ readOk(); return lastGood; }
     if(r.status === 200){
       etag = r.headers.get("ETag");
       lastGood = await r.json();
+      keyBad = false;
       readOk();
       return lastGood;
     }
     if(r.status === 404){ readOk(); return null; }
-    if(r.status === 403 || r.status === 429){
-      failStreak++; slowDown();
-      const f = await readRawFallback();
-      if(f){ setLive(true); lastGood = f; return f; }
-      setLive(false); return lastGood;
-    }
-    setLive(false); return lastGood;
-  }catch(e){
-    failStreak++; slowDown();
-    setLive(false);
-    return lastGood;
+    if(r.status === 401) keyBad = true;
+  }catch(e){ lastReadStatus = 0; }
+  failStreak++;
+  const fb = await fallbackRead();
+  if(fb){
+    setLive(true);
+    lastGood = fb;
+    delayMs = window.__TEST_POLL__ ? POLL : 2500;
+    return fb;
   }
+  slowDown();
+  setLive(false);
+  return lastGood;
 }
-function readOk(){
-  setLive(true); failStreak = 0;
-  delayMs = (typeof document !== "undefined" && document.hidden) ? 6000 : POLL;
-}
-function slowDown(){ delayMs = Math.min(10000, Math.round(POLL * Math.pow(1.7, Math.min(failStreak, 4)))); }
-async function readRawFallback(){
+async function fallbackRead(){
+  try{
+    const r = await fetch("https://cdn.jsdelivr.net/gh/" + gh.owner + "/" + gh.repo + "@" + gh.branch + "/" + STATE_PATH, {cache:"no-store"});
+    if(r.ok) return await r.json();
+  }catch(e){}
   try{
     const r = await fetch("https://raw.githubusercontent.com/" + gh.owner + "/" + gh.repo + "/" + gh.branch + "/" + STATE_PATH + "?f=" + Date.now(), {cache:"no-store"});
     if(r.ok) return await r.json();
   }catch(e){}
   return null;
 }
+function readOk(){
+  setLive(true); failStreak = 0;
+  delayMs = (typeof document !== "undefined" && document.hidden) ? 6000 : POLL;
+}
+function slowDown(){ delayMs = Math.min(10000, Math.round(POLL * Math.pow(1.7, Math.min(failStreak, 4)))); }
 try{
   document.addEventListener("visibilitychange", ()=>{ delayMs = document.hidden ? 6000 : POLL; });
 }catch(e){}
@@ -1099,7 +1113,11 @@ async function hostWrite(state){
     try{
       const r = await fetch(apiURL(), {method:"PUT", headers:hdr(), body:JSON.stringify(body)});
       gh.lastStatus = r.status;
-      if(r.ok){ const j = await r.json(); gh.sha = j.content.sha; setLive(true); return true; }
+      if(r.ok){
+        const j = await r.json(); gh.sha = j.content.sha; setLive(true);
+        try{ fetch("https://purge.jsdelivr.net/gh/" + gh.owner + "/" + gh.repo + "@" + gh.branch + "/" + STATE_PATH).catch(function(){}); }catch(e){}
+        return true;
+      }
       if(r.status === 409 || r.status === 422){ try{ await hostRead(); }catch(e){ gh.sha = null; } continue; }
       setLive(false); return false;
     }catch(e){ gh.lastStatus = 0; setLive(false); return false; }
@@ -1118,8 +1136,51 @@ function toast(msg){
   toastT = setTimeout(()=>t.classList.remove("show"), 6000);
 }
 function writeFailToast(){
-  toast("That click did not reach the players. Check your connection, then press the button again.");
+  if(gh.lastStatus === 401){
+    toast("Key 1 has expired or is wrong. Make a fresh host key, refresh this page, and connect again.");
+  } else {
+    toast("That click did not reach the players. Check your connection, then press the button again.");
+  }
 }
+
+/* ================= LINK HEALTH NOTES ================= */
+function keyNoteCheck(){
+  const n = document.getElementById("keyNote");
+  if(!n || role !== "player") return;
+  let msg = "";
+  if(keyBad) msg = "The key inside this link has stopped working. Ask the host to copy a fresh link from the lobby.";
+  else if(!playerKey) msg = "This link is missing its key, so updates may be slower. Ask the host to copy the link again from the lobby.";
+  if(msg){ n.textContent = msg; n.classList.add("show"); }
+  else n.classList.remove("show");
+}
+let chanT = null;
+function startChanCheck(){
+  stopChanCheck();
+  const MS = window.__TEST_POLL__ ? 120 : 2500;
+  const run = async () => {
+    const lob = document.getElementById("s-lobby");
+    if(!lob || !lob.classList.contains("active")){ stopChanCheck(); return; }
+    const g = await readState();
+    const el = document.getElementById("chanStatus");
+    if(!el) return;
+    if(lastReadStatus === 200 || lastReadStatus === 304){
+      el.textContent = "Player link tested from this device: working";
+      el.className = "chanline ok";
+    } else if(lastReadStatus === 401){
+      el.textContent = "Key 2 is wrong or expired. Make a fresh read-only key and reconnect.";
+      el.className = "chanline bad";
+    } else if(g){
+      el.textContent = "Main channel blocked on this network. Players will use the backup channel.";
+      el.className = "chanline warn";
+    } else {
+      el.textContent = "Cannot reach GitHub from this device. Check the internet connection.";
+      el.className = "chanline bad";
+    }
+  };
+  run();
+  chanT = setInterval(run, MS);
+}
+function stopChanCheck(){ if(chanT){ clearInterval(chanT); chanT = null; } }
 
 /* ================= UI BASICS ================= */
 function show(id){
@@ -1209,6 +1270,7 @@ async function hostNewGame(){
   renderShareCard();
   show("s-lobby");
   setDock(null);
+  startChanCheck();
 }
 async function hostRestart(){
   if(role !== "host") return;
@@ -1220,7 +1282,7 @@ async function hostRestart(){
 function shareLink(){
   try{
     const base = location.origin + location.pathname + "?v=" + BUILD;
-    return playerKey ? base + "#k=" + playerKey : base;
+    return playerKey ? base + "&k=" + playerKey : base;
   }catch(e){ return ""; }
 }
 function renderShareCard(){
@@ -1243,7 +1305,7 @@ function hostResume(){
   const g = existingState;
   sid = g.sid;
   try{ entryList = JSON.parse(lsGet("hc_rows_"+sid) || "[]"); }catch(e){ entryList = []; }
-  if(g.phase === "lobby"){ renderShareCard(); show("s-lobby"); setDock(null); }
+  if(g.phase === "lobby"){ renderShareCard(); show("s-lobby"); setDock(null); startChanCheck(); }
   else if(g.phase === "q"){ hostShowQuestion(g.qi); }
   else if(g.phase === "reveal"){ renderQuestionBase(g.qi); renderReveal(g); show("s-game"); setDock("next", g.qi); }
   else if(g.phase === "collect"){ renderEntries(); show("s-collect-host"); setDock(null); }
@@ -1259,7 +1321,7 @@ async function hostStartGame(){
   if(role !== "host") return;
   hostShowQuestion(0);
   const ok = await hostWrite({sid, phase:"q", qi:0});
-  if(!ok){ writeFailToast(); renderShareCard(); show("s-lobby"); setDock(null); }
+  if(!ok){ writeFailToast(); renderShareCard(); show("s-lobby"); setDock(null); startChanCheck(); }
 }
 async function hostGoQuestion(qi){
   if(role !== "host") return;
@@ -1430,6 +1492,7 @@ function verCheck(g){
 }
 async function playerTick(){
   const g = await readState();
+  keyNoteCheck();
   if(!g || !g.sid) return;
   verCheck(g);
   if(sid !== g.sid){
