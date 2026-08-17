@@ -11,8 +11,8 @@
 :root{
   --night:#160433;
   --deep:#1E0A44;
-  --glass:rgba(22,6,50,.72);
-  --glass2:rgba(34,10,70,.8);
+  --glass:rgba(22,6,50,.88);
+  --glass2:rgba(34,10,70,.92);
   --line:rgba(41,230,255,.35);
   --ink:#FFF6FB;
   --dim:#C9A8E8;
@@ -42,7 +42,7 @@ body{
 }
 body::after{
   content:"";position:fixed;inset:0;z-index:3;pointer-events:none;
-  background:repeating-linear-gradient(0deg,rgba(0,0,10,.12) 0 2px,transparent 2px 4px);
+  background:repeating-linear-gradient(0deg,rgba(0,0,10,.09) 0 2px,transparent 2px 4px);
 }
 
 /* ============ MIAMI DUSK BACKGROUND ============ */
@@ -67,10 +67,9 @@ body::after{
   position:absolute;left:50%;bottom:33vh;transform:translateX(-50%);
   width:min(52vw,330px);aspect-ratio:1;border-radius:50%;
   background:linear-gradient(180deg,#FFE45C 0%,#FF8C42 42%,#FF2E88 72%,#B44CFF 100%);
-  -webkit-mask-image:repeating-linear-gradient(to bottom,#000 0 78%,#000 0),repeating-linear-gradient(to bottom,#000 0 12px,transparent 12px 19px);
-  -webkit-mask-composite:source-over;
   mask-image:linear-gradient(#000 0 55%,transparent 0),repeating-linear-gradient(to bottom,#000 0 12px,transparent 12px 19px);
-  filter:drop-shadow(0 0 44px rgba(255,80,120,.75));
+  -webkit-mask-image:linear-gradient(#000 0 55%,transparent 0),repeating-linear-gradient(to bottom,#000 0 12px,transparent 12px 19px);
+  filter:drop-shadow(0 0 34px rgba(255,80,120,.7));
 }
 .horizon{
   position:absolute;left:0;right:0;bottom:34vh;height:3px;
@@ -85,18 +84,18 @@ body::after{
     repeating-linear-gradient(90deg,rgba(41,230,255,.55) 0 2px,transparent 2px 64px),
     repeating-linear-gradient(0deg,rgba(255,46,136,.55) 0 2px,transparent 2px 48px);
   animation:gridmove 2.6s linear infinite;
-  box-shadow:inset 0 30px 60px rgba(0,0,0,.5);
+  will-change:background-position;
 }
 @keyframes gridmove{to{background-position:0 0,0 48px}}
 .palm{position:absolute;bottom:31vh;width:min(34vw,230px);opacity:.95}
 .palm.p1{left:-2%}
 .palm.p2{right:-3%;transform:scaleX(-1)}
-.palm img,.palm svg{width:100%;height:auto;display:block}
+.palm svg{width:100%;height:auto;display:block}
 
 /* ============ LAYOUT ============ */
-.screen{display:none;min-height:100vh;min-height:100dvh;position:relative;z-index:1;flex-direction:column;align-items:center;padding:22px 18px 140px}
-.screen.active{display:flex;animation:screenIn .55s var(--ease)}
-@keyframes screenIn{from{opacity:0;transform:translateY(22px);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+.screen{display:none;min-height:100vh;min-height:100dvh;position:relative;z-index:1;flex-direction:column;align-items:center;padding:22px 18px 150px}
+.screen.active{display:flex;animation:screenIn .45s var(--ease)}
+@keyframes screenIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .col{width:100%;max-width:620px;display:flex;flex-direction:column;align-items:center}
 
 /* ============ TYPE ============ */
@@ -128,7 +127,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .btn{
   font-family:var(--disp);font-size:15px;letter-spacing:.08em;text-transform:uppercase;
   border:2px solid transparent;border-radius:14px;padding:16px 28px;cursor:pointer;color:#fff;
-  transition:transform .2s var(--spring),box-shadow .25s var(--ease),filter .2s;
+  transition:transform .18s var(--spring),box-shadow .2s var(--ease);
 }
 .btn:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 .btn:active{transform:scale(.97)}
@@ -136,25 +135,26 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
   background:linear-gradient(90deg,var(--pink),var(--orange));
   box-shadow:0 0 22px rgba(255,46,136,.55),0 8px 24px rgba(0,0,20,.5);
 }
-.btn-primary:hover{transform:scale(1.03);box-shadow:0 0 34px rgba(255,46,136,.8),0 10px 28px rgba(0,0,20,.5)}
+.btn-primary:hover{transform:scale(1.03)}
 .btn-glass{
   background:var(--glass);border-color:var(--cyan);color:var(--cyan);
-  box-shadow:0 0 16px rgba(41,230,255,.35),inset 0 0 18px rgba(41,230,255,.12);
-  backdrop-filter:blur(14px);
+  box-shadow:0 0 16px rgba(41,230,255,.3);
 }
-.btn-glass:hover{color:#fff;border-color:#fff;box-shadow:0 0 26px rgba(41,230,255,.6)}
+.btn-glass:hover{color:#fff;border-color:#fff}
 .btn-ghost{background:none;border:none;color:var(--dim);font-family:var(--disp);font-size:13px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 .btn-ghost:hover{color:#fff}
 .btn-wide{width:100%;max-width:340px}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.hostonly{display:none}
+.is-host .hostonly{display:inline-block}
 
 /* ============ SYNC TOAST ============ */
 .synctoast{
   position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-160%);z-index:80;
-  background:rgba(120,6,40,.85);border:2px solid var(--redx);color:#FFD9E0;
+  background:rgba(120,6,40,.92);border:2px solid var(--redx);color:#FFD9E0;
   border-radius:14px;padding:13px 20px;font-weight:600;font-size:14.5px;max-width:min(92vw,480px);text-align:center;
-  box-shadow:0 0 28px rgba(255,59,92,.6);backdrop-filter:blur(12px);
-  transition:transform .4s var(--spring);
+  box-shadow:0 0 28px rgba(255,59,92,.6);
+  transition:transform .35s var(--spring);
 }
 .synctoast.show{transform:translateX(-50%) translateY(0)}
 
@@ -164,14 +164,13 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
   background:linear-gradient(180deg,#FFE45C,#FF8C42 45%,#FF2E88 80%);
   mask-image:linear-gradient(#000 0 55%,transparent 0),repeating-linear-gradient(to bottom,#000 0 8px,transparent 8px 13px);
   -webkit-mask-image:linear-gradient(#000 0 55%,transparent 0),repeating-linear-gradient(to bottom,#000 0 8px,transparent 8px 13px);
-  filter:drop-shadow(0 0 22px rgba(255,80,120,.85));
+  filter:drop-shadow(0 0 18px rgba(255,80,120,.8));
   animation:breathe 3s ease-in-out infinite alternate;
 }
 @keyframes breathe{from{transform:scale(.95)}to{transform:scale(1.06)}}
 .welcome-btns{display:flex;flex-direction:column;gap:14px;margin-top:32px;width:100%;max-width:340px;align-items:center}
 .foot{margin-top:40px;font-family:var(--disp);font-size:10.5px;letter-spacing:.24em;color:var(--dim);text-align:center;line-height:2.4;text-transform:uppercase}
 
-/* ============ WELCOME ============ */
 #s-welcome .col{justify-content:center;min-height:80vh}
 
 /* ============ INPUTS ============ */
@@ -180,14 +179,13 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .namebox input{
   width:100%;background:var(--glass);border:2px solid var(--line);border-radius:14px;
   color:var(--ink);font-family:var(--body);font-weight:600;font-size:19px;text-align:center;padding:15px;
-  backdrop-filter:blur(14px);
 }
 .namebox input:focus{outline:none;border-color:var(--pink);box-shadow:0 0 18px rgba(255,46,136,.5)}
 .formgrid{width:100%;max-width:380px;display:flex;flex-direction:column;gap:13px;margin-top:24px}
 .field label{display:block;font-family:var(--disp);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 8px rgba(41,230,255,.6);margin-bottom:7px}
 .field input{
   width:100%;background:var(--glass);border:2px solid var(--line);border-radius:12px;
-  color:var(--ink);font-family:var(--body);font-weight:600;font-size:15.5px;padding:12px 14px;backdrop-filter:blur(14px);
+  color:var(--ink);font-family:var(--body);font-weight:600;font-size:15.5px;padding:12px 14px;
 }
 .field input:focus{outline:none;border-color:var(--pink);box-shadow:0 0 16px rgba(255,46,136,.45)}
 .field .fhint{font-size:12.5px;color:var(--dim);font-weight:400;margin-top:5px;letter-spacing:0;text-transform:none}
@@ -202,7 +200,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 /* ============ LOBBY ============ */
 .linkcard{
   width:100%;max-width:460px;margin-top:24px;background:var(--glass);border:2px solid var(--line);
-  border-radius:16px;padding:16px 18px;backdrop-filter:blur(14px);text-align:center;
+  border-radius:16px;padding:16px 18px;text-align:center;
   box-shadow:0 0 24px rgba(41,230,255,.18);
 }
 .linkcard .lk{font-family:var(--disp);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
@@ -223,40 +221,81 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .scorepill{
   font-family:var(--disp);font-size:12.5px;letter-spacing:.1em;color:#fff;
   background:var(--glass);border:2px solid var(--line);border-radius:999px;padding:8px 16px;
-  backdrop-filter:blur(14px);box-shadow:0 0 14px rgba(41,230,255,.25);text-transform:uppercase;
+  text-transform:uppercase;
 }
 .is-host .scorepill{display:none}
 
 /* ============ PROGRESS ============ */
-.progresswrap{width:100%;max-width:620px;margin:6px 0 20px}
+.progresswrap{width:100%;max-width:620px;margin:6px 0 14px}
 .progresslabel{display:flex;justify-content:space-between;font-family:var(--disp);font-size:10.5px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
 .progressbar{height:8px;border-radius:99px;background:rgba(10,0,30,.6);border:1px solid var(--line);overflow:hidden}
-.progressfill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--orange));box-shadow:0 0 14px rgba(255,46,136,.8);transition:width .7s var(--ease)}
+.progressfill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--orange));box-shadow:0 0 14px rgba(255,46,136,.8);transition:width .6s var(--ease)}
+
+/* ============ CHARACTER STAGE ============ */
+.charStage{
+  width:100%;max-width:620px;height:130px;margin:0 0 14px;
+  overflow:hidden;position:relative;
+}
+.charStage svg{width:100%;height:100%;display:block}
+.charStage .inner *,.charStage g{transform-box:fill-box}
+.bob{animation:bobk .7s ease-in-out infinite alternate}
+@keyframes bobk{to{transform:translateY(-3px)}}
+.legA{transform-origin:50% 0;animation:swing .7s ease-in-out infinite alternate}
+.legB{transform-origin:50% 0;animation:swing .7s ease-in-out infinite alternate-reverse}
+@keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+.swingA{transform-origin:50% 0;animation:armsw .7s ease-in-out infinite alternate-reverse}
+.swingB{transform-origin:50% 0;animation:armsw .7s ease-in-out infinite alternate}
+@keyframes armsw{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+.holdUp{transform-origin:50% 0;transform:rotate(-125deg)}
+.holdMid{transform-origin:50% 0;transform:rotate(-60deg)}
+.knockArm{transform-origin:50% 0;animation:knockk 1.2s ease-in-out infinite}
+@keyframes knockk{0%,55%,100%{transform:rotate(-40deg)}15%,35%{transform:rotate(-78deg)}}
+.cheerArm{transform-origin:50% 0;animation:cheerk 1.8s ease-in-out infinite}
+@keyframes cheerk{0%,100%{transform:rotate(-60deg)}50%{transform:rotate(-125deg)}}
+.pointArm{transform-origin:50% 0;animation:pointk 1.6s ease-in-out infinite}
+@keyframes pointk{0%,100%{transform:rotate(-70deg)}50%{transform:rotate(-84deg)}}
+.shakeHead{animation:shakek 1.6s ease-in-out infinite}
+@keyframes shakek{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.strollR{animation:strollRk 12s linear infinite}
+@keyframes strollRk{from{transform:translateX(-90px)}to{transform:translateX(880px)}}
+.strollL{animation:strollLk 13s linear infinite}
+@keyframes strollLk{from{transform:translateX(880px)}to{transform:translateX(-90px)}}
+.flashy{animation:flashk 2.6s ease-out infinite}
+@keyframes flashk{0%,86%{opacity:0}90%{opacity:1}100%{opacity:0}}
+.bigflashy{animation:flashk 3.2s ease-out infinite}
+.knockstar{animation:knockstark 1.2s ease-out infinite}
+@keyframes knockstark{0%,55%,100%{opacity:0;transform:scale(.4)}18%{opacity:1;transform:scale(1)}30%{opacity:0}}
+.steam{animation:steamk 2.2s ease-in-out infinite}
+@keyframes steamk{0%{opacity:0;transform:translateY(4px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-14px)}}
+.floaty{animation:floatk 2.4s ease-in-out infinite alternate}
+@keyframes floatk{to{transform:translateY(-10px)}}
+.juggler{transform-origin:center;animation:jugglek 1.6s linear infinite}
+@keyframes jugglek{to{transform:rotate(360deg)}}
+.hurry .legA{animation-duration:.4s}
+.hurry .legB{animation-duration:.4s}
+.hurry.strollR{animation-duration:7.5s}
+.tiltcans{animation:tiltk 2.4s ease-in-out infinite}
+@keyframes tiltk{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.playtri{animation:flashk 2s ease-out infinite}
 
 /* ============ QUESTION ============ */
-.qmeta{font-family:var(--disp);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 10px rgba(41,230,255,.7);margin-bottom:14px;text-align:center;animation:fadeUp .5s var(--ease) both}
+.qmeta{font-family:var(--disp);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 10px rgba(41,230,255,.7);margin-bottom:12px;text-align:center}
 .qtext{
   font-weight:600;font-size:clamp(20px,3.6vw,26px);line-height:1.42;
   text-align:center;max-width:620px;color:var(--ink);
   background:var(--glass);border:2px solid var(--line);border-radius:18px;
   box-shadow:0 0 26px rgba(41,230,255,.15),0 12px 30px rgba(0,0,20,.4);
-  padding:20px 22px;backdrop-filter:blur(14px);
-  animation:fadeUp .5s var(--ease) .07s both;
+  padding:20px 22px;
 }
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.options{display:grid;grid-template-columns:1fr;gap:16px;width:100%;margin-top:26px}
+.options{display:grid;grid-template-columns:1fr;gap:16px;width:100%;margin-top:24px}
 @media(min-width:560px){.options{grid-template-columns:1fr 1fr}}
 .opt{
   position:relative;text-align:left;cursor:pointer;
   background:var(--glass);border:2px solid var(--line);border-radius:18px;
   padding:20px 20px 18px;color:var(--ink);font-family:var(--body);
-  backdrop-filter:blur(14px);
   box-shadow:0 10px 26px rgba(0,0,20,.4);
-  transition:transform .25s var(--spring),border-color .2s,box-shadow .25s,opacity .25s;
-  animation:fadeUp .5s var(--ease) both;
+  transition:transform .2s var(--spring),border-color .18s,box-shadow .2s,opacity .2s;
 }
-.opt:nth-child(1){animation-delay:.14s}
-.opt:nth-child(2){animation-delay:.22s}
 .opt .ol{
   display:inline-flex;align-items:center;justify-content:center;
   width:36px;height:36px;border-radius:10px;font-family:var(--disp);font-size:16px;
@@ -267,16 +306,15 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .opt .check{
   position:absolute;top:14px;right:14px;width:27px;height:27px;border-radius:50%;
   background:#fff;display:none;align-items:center;justify-content:center;
-  box-shadow:0 0 12px rgba(255,255,255,.7);
 }
 .opt .check svg{width:15px;height:15px}
 .opt .check path{stroke:#12002B;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;animation:draw .3s var(--ease) forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.opt:not(:disabled):hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 0 22px rgba(41,230,255,.35),0 12px 30px rgba(0,0,20,.4)}
+.opt:not(:disabled):hover{transform:translateY(-3px);border-color:var(--cyan)}
 .opt.picked{
   border-color:var(--pink);
   box-shadow:0 0 0 2px var(--pink),0 0 34px rgba(255,46,136,.6),0 12px 30px rgba(0,0,20,.4);
-  animation:pickpop .35s var(--spring);
+  animation:pickpop .3s var(--spring);
 }
 @keyframes pickpop{0%{transform:scale(.97)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
 .opt.picked .check{display:flex}
@@ -289,7 +327,6 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .is-host .opt{cursor:default}
 .lockline{margin-top:15px;font-size:13.5px;font-weight:600;color:var(--dim);text-align:center;min-height:20px}
 
-/* neon spark that pops when you pick */
 .coinpop{
   position:absolute;left:50%;top:-4px;width:16px;height:16px;margin-left:-8px;
   background:linear-gradient(135deg,var(--cyan),var(--pink));
@@ -304,28 +341,33 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .is-host .countwrap{display:block}
 .countchip{
   font-family:var(--disp);font-size:13px;letter-spacing:.1em;color:var(--cyan);cursor:pointer;text-transform:uppercase;
-  background:var(--glass);border:2px solid var(--line);border-radius:999px;padding:11px 22px;backdrop-filter:blur(14px);
+  background:var(--glass);border:2px solid var(--line);border-radius:999px;padding:11px 22px;
 }
-.countchip.hot{color:var(--orange);border-color:rgba(255,140,66,.6);box-shadow:0 0 16px rgba(255,140,66,.4)}
-.countchip.zero{color:#fff;background:rgba(255,59,92,.3);border-color:var(--redx);box-shadow:0 0 20px rgba(255,59,92,.6);animation:blinksoft 1s ease-in-out infinite}
+.countchip.hot{color:var(--orange);border-color:rgba(255,140,66,.6)}
+.countchip.zero{color:#fff;background:rgba(255,59,92,.4);border-color:var(--redx);animation:blinksoft 1s ease-in-out infinite}
 
 /* ============ HOST DOCK ============ */
 .dock{
   display:none;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;
-  background:rgba(16,2,40,.8);border:2px solid var(--line);border-radius:999px;
-  padding:10px;backdrop-filter:blur(18px);
-  box-shadow:0 0 30px rgba(41,230,255,.25),0 16px 40px rgba(0,0,20,.6);
-  gap:10px;align-items:center;
+  background:rgba(16,2,40,.94);border:2px solid var(--line);border-radius:999px;
+  padding:9px;box-shadow:0 0 30px rgba(41,230,255,.25),0 16px 40px rgba(0,0,20,.6);
+  gap:9px;align-items:center;
 }
 .is-host .dock.on{display:flex}
-.dock .btn{padding:13px 24px;font-size:13.5px}
+.dock .btn{padding:13px 22px;font-size:13.5px}
+.dock .iconb{
+  width:46px;height:46px;border-radius:50%;border:2px solid var(--line);background:transparent;
+  color:var(--cyan);font-size:17px;cursor:pointer;flex:none;
+}
+.dock .iconb:hover:not(:disabled){border-color:#fff;color:#fff}
+.dock .iconb:disabled{opacity:.3;cursor:not-allowed}
 
 /* ============ REVEAL ============ */
 .reveal{display:none;width:100%;flex-direction:column;align-items:center}
 .reveal.show{display:flex}
 .resultbadge{
   display:none;margin:26px 0 2px;font-family:var(--disp);font-size:clamp(28px,6vw,44px);
-  animation:badgeIn .5s var(--spring) both;
+  animation:badgeIn .45s var(--spring) both;
 }
 @keyframes badgeIn{0%{opacity:0;transform:scale(.3)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
 .is-player .resultbadge{display:block}
@@ -333,18 +375,17 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .resultbadge.bad{color:#FF7A94;text-shadow:0 0 18px rgba(255,59,92,.8)}
 .correctpill{
   margin-top:20px;font-family:var(--disp);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--mint);
-  background:rgba(61,255,180,.1);border:2px solid rgba(61,255,180,.6);border-radius:999px;padding:10px 20px;
-  box-shadow:0 0 20px rgba(61,255,180,.35);animation:fadeUp .45s var(--ease) both;
+  background:rgba(61,255,180,.14);border:2px solid rgba(61,255,180,.6);border-radius:999px;padding:10px 20px;
+  box-shadow:0 0 20px rgba(61,255,180,.35);
 }
 .storycard,.factcard,.lessoncard{
   width:100%;border-radius:18px;padding:20px 20px 18px;margin-top:16px;
-  background:var(--glass);backdrop-filter:blur(14px);
+  background:var(--glass);
   border:2px solid var(--line);border-left-width:6px;
   box-shadow:0 12px 30px rgba(0,0,20,.4);
-  animation:fadeUp .5s var(--ease) both;
 }
 .storycard{border-left-color:var(--cyan)}
-.factcard{border-left-color:var(--orange);box-shadow:0 0 22px rgba(255,140,66,.14),0 12px 30px rgba(0,0,20,.4)}
+.factcard{border-left-color:var(--orange)}
 .lessoncard{border-left-color:var(--pink);box-shadow:0 0 28px rgba(255,46,136,.2),0 12px 30px rgba(0,0,20,.4)}
 .klabel{font-family:var(--disp);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
 .factcard .klabel{color:var(--orange)}
@@ -354,7 +395,6 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .storyline + .storyline{margin-top:9px;color:var(--dim)}
 .factline{font-size:15.5px}
 .lessonline{font-family:var(--disp);font-size:clamp(17px,3vw,21px);line-height:1.45;color:#fff;text-shadow:0 0 12px rgba(255,46,136,.6)}
-.d1{animation-delay:.08s}.d2{animation-delay:.2s}.d3{animation-delay:.32s}
 
 /* ============ COLLECT ============ */
 .bigscore{
@@ -364,15 +404,14 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .dots{display:flex;justify-content:center;gap:8px;margin:22px 0 6px;flex-wrap:wrap}
 .dot{
   width:29px;height:29px;border-radius:9px;display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:12px;color:#fff;animation:chipIn2 .45s var(--spring) both;
+  font-weight:700;font-size:12px;color:#fff;
 }
-@keyframes chipIn2{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
 .dot.w{background:rgba(61,255,180,.25);box-shadow:0 0 0 2px var(--mint),0 0 12px rgba(61,255,180,.5)}
 .dot.l{background:rgba(255,59,92,.25);box-shadow:0 0 0 2px var(--redx)}
 .entryrows{width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px;margin-top:22px}
 .erow{
   display:flex;align-items:center;gap:12px;background:var(--glass);border:2px solid var(--line);
-  border-radius:14px;padding:10px 14px;backdrop-filter:blur(14px);animation:chipIn2 .35s var(--spring);
+  border-radius:14px;padding:10px 14px;
 }
 .erow .en{font-weight:600;font-size:16px;flex:1}
 .erow .es{font-family:var(--disp);font-size:16px}
@@ -381,7 +420,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .entryform{display:flex;gap:10px;width:100%;max-width:420px;margin-top:14px}
 .entryform input{
   background:var(--glass);border:2px solid var(--line);border-radius:12px;color:var(--ink);
-  font-family:var(--body);font-weight:600;font-size:16px;padding:12px 14px;backdrop-filter:blur(14px);
+  font-family:var(--body);font-weight:600;font-size:16px;padding:12px 14px;
 }
 .entryform input:focus{outline:none;border-color:var(--pink)}
 .entryform .fn{flex:1;min-width:0}
@@ -393,10 +432,10 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .lb-row{
   display:flex;align-items:center;gap:14px;
   background:var(--glass);border:2px solid var(--line);border-radius:18px;padding:14px 18px;
-  backdrop-filter:blur(14px);box-shadow:0 10px 26px rgba(0,0,20,.4);
+  box-shadow:0 10px 26px rgba(0,0,20,.4);
   opacity:0;transform:translateY(24px) scale(.97);
 }
-.lb-row.in{animation:rowIn .6s var(--spring) forwards}
+.lb-row.in{animation:rowIn .55s var(--spring) forwards}
 @keyframes rowIn{to{opacity:1;transform:none}}
 .lb-rank{
   width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -405,11 +444,11 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .lb-name{font-weight:700;font-size:17px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lb-score{font-family:var(--disp);font-size:19px}
 .lb-row.first{
-  background:linear-gradient(120deg,rgba(255,209,102,.16),rgba(255,46,136,.14));
+  background:linear-gradient(120deg,rgba(255,209,102,.22),rgba(255,46,136,.2));
   border:2px solid var(--gold);
   box-shadow:0 0 42px rgba(255,209,102,.4),0 10px 26px rgba(0,0,20,.4);
 }
-.lb-row.first .lb-rank{background:linear-gradient(135deg,var(--gold),var(--orange));color:#3A2000;border:none;box-shadow:0 0 14px rgba(255,209,102,.7)}
+.lb-row.first .lb-rank{background:linear-gradient(135deg,var(--gold),var(--orange));color:#3A2000;border:none}
 .wintag{
   display:inline-block;font-family:var(--disp);font-size:10px;letter-spacing:.2em;color:var(--gold);
   border:1.5px solid rgba(255,209,102,.7);border-radius:99px;padding:3px 10px;margin-left:8px;vertical-align:middle;
@@ -420,7 +459,6 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .lessonlist{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:26px}
 .lrow{
   background:var(--glass);border:2px solid var(--line);border-left:6px solid var(--pink);border-radius:16px;padding:16px 18px;
-  backdrop-filter:blur(14px);animation:fadeUp .4s var(--ease) both;
 }
 .lrow .ln{font-family:var(--disp);font-size:10px;letter-spacing:.22em;color:var(--cyan);text-transform:uppercase}
 .lrow .lt{font-weight:700;font-size:16.5px;margin-top:4px;color:#fff}
@@ -511,11 +549,11 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <!-- ============ HOST RESUME ============ -->
 <section class="screen" id="s-resume">
   <div class="col" style="justify-content:center;min-height:78vh">
-    <h2>A game is already <span class="grad">running</span></h2>
-    <p class="sub" style="margin-top:14px">You can continue it, or start a fresh one.</p>
+    <h2>An old game is <span class="grad">saved</span></h2>
+    <p class="sub" style="margin-top:14px">Start a new game to begin from question 1 for everyone, or continue the old one.</p>
     <div class="welcome-btns">
-      <button class="btn btn-primary btn-wide" onclick="hostResume()">Continue that game</button>
-      <button class="btn btn-glass btn-wide" onclick="hostNewGame()">Start a new game</button>
+      <button class="btn btn-primary btn-wide" onclick="hostNewGame()">Start a new game</button>
+      <button class="btn btn-glass btn-wide" onclick="hostResume()">Continue the old game</button>
     </div>
   </div>
 </section>
@@ -550,6 +588,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <div class="progresslabel"><span id="qLabel">Question 1 of 10</span><span id="qChip"></span></div>
     <div class="progressbar"><div class="progressfill" id="progressfill"></div></div>
   </div>
+  <div class="charStage" id="charStage"></div>
   <div class="col">
     <div class="qmeta" id="qMeta"></div>
     <div class="qtext" id="qText"></div>
@@ -571,17 +610,17 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <div class="reveal" id="reveal">
       <div class="resultbadge" id="resultBadge"></div>
       <div class="correctpill" id="correctPill">The correct answer: A</div>
-      <div class="storycard d1">
+      <div class="storycard">
         <div class="klabel">The real story</div>
         <div class="company" id="rCompany"></div>
         <div class="storyline" id="rDid"></div>
         <div class="storyline" id="rHappened"></div>
       </div>
-      <div class="factcard d2">
+      <div class="factcard">
         <div class="klabel">✦ Fun fact</div>
         <div class="factline" id="rFact"></div>
       </div>
-      <div class="lessoncard d3">
+      <div class="lessoncard">
         <div class="klabel">Lesson for our work</div>
         <div class="lessonline" id="rLesson"></div>
       </div>
@@ -614,6 +653,8 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     </div>
     <div class="welcome-btns" style="margin-top:26px">
       <button class="btn btn-primary btn-wide" id="btnShowResults" onclick="hostShowResults()" disabled>Show the final results</button>
+      <button class="btn btn-ghost" onclick="hostBackToLast()">Back to the last question</button>
+      <button class="btn btn-ghost" onclick="hostRestart()">Restart the game</button>
     </div>
   </div>
 </section>
@@ -626,6 +667,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <div class="lb" id="lbList"></div>
     <div class="welcome-btns" style="margin-top:30px">
       <button class="btn btn-primary btn-wide" onclick="showLessons()">See all 10 lessons</button>
+      <button class="btn btn-ghost hostonly" onclick="hostRestart()">Play again · new game</button>
     </div>
   </div>
 </section>
@@ -756,8 +798,83 @@ const Q = [
 ];
 const N = Q.length;
 
+/* ================= STREET SCENES (original 80s Miami people) ================= */
+function person(o){
+  const flip = o.flip ? ' scale(-1,1)' : '';
+  const legA = o.stand ? '' : ' legA';
+  const legB = o.stand ? '' : ' legB';
+  const back = o.back || 'swingB';
+  const front = o.front || 'swingA';
+  const headCls = o.head || '';
+  return '<g transform="translate('+o.x+',150)"><g class="inner bob" transform="scale(1,1)'+flip+'">'
+   +'<g class="pl'+legA+'"><rect x="-11" y="-36" width="9" height="34" rx="3" fill="'+o.pants+'"/><rect x="-14" y="-5" width="15" height="6" rx="2" fill="#14101E"/></g>'
+   +'<g class="pl'+legB+'"><rect x="2" y="-36" width="9" height="34" rx="3" fill="'+o.pants+'"/><rect x="0" y="-5" width="15" height="6" rx="2" fill="#14101E"/></g>'
+   +'<rect x="-14" y="-80" width="28" height="46" rx="7" fill="'+o.shirt+'"/>'
+   +'<g class="arm '+back+'" transform="translate(-10,-74)"><rect x="-3.5" y="0" width="7" height="30" rx="3" fill="'+o.shirt+'"/><circle cx="0" cy="32" r="5" fill="'+o.skin+'"/></g>'
+   +'<g class="arm '+front+'" transform="translate(10,-74)"><rect x="-3.5" y="0" width="7" height="30" rx="3" fill="'+o.shirt+'"/><circle cx="0" cy="32" r="5" fill="'+o.skin+'"/>'+(o.prop||'')+'</g>'
+   +'<g class="'+headCls+'"><circle cx="0" cy="-94" r="13" fill="'+o.skin+'"/>'
+   +'<path d="M-13 -96 Q0 -112 13 -96 L13 -102 Q0 -116 -13 -102 Z" fill="'+o.hair+'"/>'
+   +'<rect x="-11" y="-97" width="22" height="6" rx="2" fill="#10131C"/></g>'
+   +'</g></g>';
+}
+const PROPS = {
+  tapes:'<g transform="translate(-2,26)"><rect x="-13" y="-6" width="26" height="9" rx="2" fill="#1B1B26"/><rect x="-13" y="-16" width="26" height="9" rx="2" fill="#2A2A3A"/><rect x="-13" y="-26" width="26" height="9" rx="2" fill="#1B1B26"/><circle cx="-6" cy="-1.5" r="2" fill="#555"/><circle cx="6" cy="-1.5" r="2" fill="#555"/></g>',
+  camera:'<g transform="translate(2,26)"><rect x="-11" y="-8" width="24" height="16" rx="3" fill="#20222E"/><circle cx="1" cy="0" r="5.5" fill="#29E6FF"/><circle class="flashy" cx="14" cy="-10" r="9" fill="#FFFFFF"/></g>',
+  cup:'<g transform="translate(0,26)"><rect x="-6" y="-10" width="13" height="15" rx="2" fill="#FFF6EE"/><rect x="-6" y="-10" width="13" height="4" fill="#7A4A2E"/><path class="steam" d="M0 -14 q3 -4 0 -8" stroke="#FFF" stroke-width="2" fill="none" stroke-linecap="round"/></g>',
+  can:'<rect transform="translate(-4,24)" x="0" y="-8" width="9" height="14" rx="2" fill="#E23A3A"/>',
+  can2:'<rect transform="translate(-4,24)" x="0" y="-8" width="9" height="14" rx="2" fill="#C9CCD6"/>',
+  boxes:'<g transform="translate(-2,24)"><rect x="-12" y="-8" width="25" height="14" rx="2" fill="#C77B3F"/><rect x="-12" y="-22" width="25" height="12" rx="2" fill="#B06A32"/><rect x="-1" y="-22" width="3" height="28" fill="#F2E3C8"/></g>',
+  oldcam:'<g transform="translate(2,24)"><rect x="-10" y="-9" width="22" height="15" rx="2" fill="#3A2E22"/><circle cx="1" cy="-1" r="5" fill="#111"/><circle class="bigflashy" cx="14" cy="-14" r="12" fill="#FFF"/></g>',
+  bubble:'<g class="floaty" transform="translate(0,18)"><rect x="-13" y="-24" width="27" height="17" rx="6" fill="#3DFFB4"/><circle cx="-6" cy="-15" r="1.8" fill="#0C4C34"/><circle cx="0" cy="-15" r="1.8" fill="#0C4C34"/><circle cx="6" cy="-15" r="1.8" fill="#0C4C34"/></g>',
+  phone:'<rect transform="translate(-3,24)" x="0" y="-10" width="8" height="15" rx="2" fill="#161A26"/>'
+};
+const C1={skin:'#E8B48C',hair:'#2A1B12'}, C2={skin:'#8C5A3C',hair:'#14100C'}, C3={skin:'#C98E66',hair:'#3A2A18'};
+function scene(inner){ return '<svg viewBox="0 0 800 170" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg"><g>'+inner+'</g></svg>'; }
+const SCENES = [
+ // 1 Blockbuster: a walker hauls a tower of tapes past a doubter
+ ()=>scene('<g class="strollR">'+person({x:0,shirt:'#FF6AB2',pants:'#2E2E4E',...C1,front:'holdMid',prop:PROPS.tapes})+'</g>'
+   +person({x:640,shirt:'#29E6FF',pants:'#22223A',...C2,stand:true,front:'holdMid',prop:PROPS.tapes,head:'shakeHead',flip:true})),
+ // 2 Instagram: photographer flashes a dancing poser
+ ()=>scene(person({x:250,shirt:'#B44CFF',pants:'#1E1E36',...C3,stand:true,front:'holdUp',prop:PROPS.camera})
+   +person({x:520,shirt:'#FFD166',pants:'#B03A6A',...C1,stand:true,front:'cheerArm',back:'holdMid',flip:true,head:'shakeHead'})),
+ // 3 Airbnb: knocking on a tall door, friend waits with a camera
+ ()=>scene('<rect x="560" y="30" width="52" height="120" rx="4" fill="#7A2E8F"/><circle cx="572" cy="95" r="4" fill="#FFD166"/>'
+   +'<path class="knockstar" d="M552 60 l6 -3 -2 6 6 2 -7 2 2 6 -6 -4 -5 4 2 -6 -6 -2 7 -2 -2 -6 z" fill="#FFF"/>'
+   +person({x:505,shirt:'#FF8C42',pants:'#2A2A44',...C2,stand:true,front:'knockArm'})
+   +person({x:340,shirt:'#29E6FF',pants:'#20203A',...C1,stand:true,front:'holdMid',prop:PROPS.camera})),
+ // 4 Dropbox: one films a demo at a desk, one points at the play button
+ ()=>scene('<rect x="330" y="118" width="120" height="10" rx="3" fill="#2A1050"/><rect x="352" y="86" width="60" height="34" rx="4" fill="#20222E"/><path class="playtri" d="M374 96 l18 7 -18 7 z" fill="#3DFFB4"/>'
+   +person({x:300,shirt:'#FF2E88',pants:'#22223C',...C3,stand:true,front:'holdMid',prop:PROPS.phone})
+   +person({x:520,shirt:'#FFD166',pants:'#2E2E4E',...C2,stand:true,flip:true,front:'pointArm'})),
+ // 5 Starbucks: coffee cheers, steam rising
+ ()=>scene(person({x:330,shirt:'#2E7D5B',pants:'#1E1E36',...C1,stand:true,front:'cheerArm',prop:PROPS.cup})
+   +person({x:470,shirt:'#FF6AB2',pants:'#26264A',...C2,stand:true,flip:true,front:'cheerArm',prop:PROPS.cup})),
+ // 6 Prime: a hurrying courier with boxes, a watcher checks the time
+ ()=>scene('<g class="strollR hurry">'+person({x:0,shirt:'#FF8C42',pants:'#22223A',...C2,front:'holdMid',prop:PROPS.boxes})+'</g>'
+   +person({x:650,shirt:'#29E6FF',pants:'#2A2A44',...C1,stand:true,flip:true,front:'holdMid',prop:PROPS.phone,head:'shakeHead'})),
+ // 7 New Coke: one can in each hand, torn between them
+ ()=>scene('<g class="tiltcans">'+person({x:400,shirt:'#E23A3A',pants:'#22223A',...C3,stand:true,front:'holdUp',back:'holdUp',prop:PROPS.can})+'</g>'
+   +person({x:590,shirt:'#B44CFF',pants:'#1E1E36',...C1,stand:true,flip:true,front:'holdMid',prop:PROPS.can2,head:'shakeHead'})),
+ // 8 Qwikster: juggling two red envelopes while a friend shakes their head
+ ()=>scene('<g transform="translate(360,52)"><g class="juggler"><rect x="-34" y="-8" width="24" height="15" rx="2" fill="#E23A3A"/><rect x="12" y="-8" width="24" height="15" rx="2" fill="#E23A3A"/></g></g>'
+   +person({x:360,shirt:'#29E6FF',pants:'#2A2A44',...C2,stand:true,front:'holdUp',back:'holdUp'})
+   +person({x:560,shirt:'#FFD166',pants:'#22223A',...C1,stand:true,flip:true,head:'shakeHead',front:'holdMid'})),
+ // 9 Kodak: big old flash camera, a poser holds still
+ ()=>scene(person({x:280,shirt:'#3A2E22',pants:'#22201A',...C1,stand:true,front:'holdUp',prop:PROPS.oldcam})
+   +person({x:540,shirt:'#FF2E88',pants:'#2E2E4E',...C2,stand:true,flip:true,front:'cheerArm',back:'holdMid'})),
+ // 10 Slack: the chat bubble goes up, everyone celebrates
+ ()=>scene(person({x:340,shirt:'#3DFFB4',pants:'#1E1E36',...C3,stand:true,front:'holdUp',prop:PROPS.bubble})
+   +person({x:500,shirt:'#FF6AB2',pants:'#26264A',...C1,stand:true,flip:true,front:'cheerArm'})
+   +'<g class="strollL">'+person({x:0,shirt:'#B44CFF',pants:'#22223A',...C2,flip:true,front:'cheerArm'})+'</g>')
+];
+function renderScene(qi){
+  const st = document.getElementById("charStage");
+  if(!st) return;
+  try{ st.innerHTML = SCENES[qi] ? SCENES[qi]() : ""; }catch(e){ st.innerHTML = ""; }
+}
+
 /* ================= STATE ================= */
-const POLL = window.__TEST_POLL__ || 3000;
+const POLL = window.__TEST_POLL__ || 1500;
 const STATE_PATH = "state.json";
 let role = null;
 let sid = null;
@@ -800,7 +917,7 @@ function deriveRepo(){
   return null;
 }
 
-/* ================= SYNC · PLAYER READ (live, through the API) ================= */
+/* ================= SYNC · PLAYER READ ================= */
 function contentsURL(){
   return "https://api.github.com/repos/" + gh.owner + "/" + gh.repo + "/contents/" + STATE_PATH + "?ref=" + gh.branch;
 }
@@ -831,8 +948,11 @@ async function readState(){
     return lastGood;
   }
 }
-function readOk(){ setLive(true); failStreak = 0; delayMs = POLL; }
-function slowDown(){ delayMs = Math.min(10000, Math.round(POLL * Math.pow(1.6, Math.min(failStreak, 4)))); }
+function readOk(){
+  setLive(true); failStreak = 0;
+  delayMs = (typeof document !== "undefined" && document.hidden) ? 6000 : POLL;
+}
+function slowDown(){ delayMs = Math.min(10000, Math.round(POLL * Math.pow(1.7, Math.min(failStreak, 4)))); }
 async function readRawFallback(){
   try{
     const r = await fetch("https://raw.githubusercontent.com/" + gh.owner + "/" + gh.repo + "/" + gh.branch + "/" + STATE_PATH + "?f=" + Date.now(), {cache:"no-store"});
@@ -840,8 +960,11 @@ async function readRawFallback(){
   }catch(e){}
   return null;
 }
+try{
+  document.addEventListener("visibilitychange", ()=>{ delayMs = document.hidden ? 6000 : POLL; });
+}catch(e){}
 
-/* ================= SYNC · HOST WRITE (host key stays in this browser) ================= */
+/* ================= SYNC · HOST WRITE ================= */
 function apiURL(){ return "https://api.github.com/repos/" + gh.owner + "/" + gh.repo + "/contents/" + STATE_PATH; }
 function hdr(){ return {"Authorization":"Bearer " + gh.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json"}; }
 function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
@@ -968,6 +1091,13 @@ async function hostNewGame(){
   }
   renderShareCard();
   show("s-lobby");
+  setDock(null);
+}
+async function hostRestart(){
+  let sure = true;
+  try{ sure = window.confirm("Start a fresh game from question 1? Everyone will return to the waiting screen."); }catch(e){}
+  if(!sure) return;
+  await hostNewGame();
 }
 function shareLink(){
   try{
@@ -994,16 +1124,28 @@ function hostResume(){
   const g = existingState;
   sid = g.sid;
   try{ entryList = JSON.parse(lsGet("hc_rows_"+sid) || "[]"); }catch(e){ entryList = []; }
-  if(g.phase === "lobby"){ renderShareCard(); show("s-lobby"); }
+  if(g.phase === "lobby"){ renderShareCard(); show("s-lobby"); setDock(null); }
   else if(g.phase === "q"){ hostShowQuestion(g.qi); }
   else if(g.phase === "reveal"){ renderQuestionBase(g.qi); renderReveal(g); show("s-game"); setDock("next", g.qi); }
   else if(g.phase === "collect"){ renderEntries(); show("s-collect-host"); setDock(null); }
 }
-async function hostStartGame(){ await hostGoQuestion(0); }
+function snapHost(){ return { qi: currentQi, revealed: revealedNow }; }
+function restoreHost(s){
+  renderQuestionBase(s.qi);
+  if(s.revealed){ renderReveal({sid, phase:"reveal", qi:s.qi}); setDock("next", s.qi); }
+  else setDock("reveal", s.qi);
+  show("s-game");
+}
+async function hostStartGame(){
+  hostShowQuestion(0);
+  const ok = await hostWrite({sid, phase:"q", qi:0});
+  if(!ok){ writeFailToast(); renderShareCard(); show("s-lobby"); setDock(null); }
+}
 async function hostGoQuestion(qi){
-  const ok = await hostWrite({sid, phase:"q", qi});
-  if(!ok){ writeFailToast(); return; }
+  const prev = snapHost();
   hostShowQuestion(qi);
+  const ok = await hostWrite({sid, phase:"q", qi});
+  if(!ok){ writeFailToast(); restoreHost(prev); }
 }
 function hostShowQuestion(qi){
   renderQuestionBase(qi);
@@ -1011,21 +1153,40 @@ function hostShowQuestion(qi){
   setDock("reveal", qi);
 }
 async function hostReveal(){
+  const prev = snapHost();
   const state = {sid, phase:"reveal", qi:currentQi};
-  const ok = await hostWrite(state);
-  if(!ok){ writeFailToast(); return; }
   renderReveal(state);
   setDock("next", currentQi);
+  const ok = await hostWrite(state);
+  if(!ok){ writeFailToast(); restoreHost(prev); }
+}
+async function hostBack(){
+  if(currentQi <= 0) return;
+  await hostGoQuestion(currentQi - 1);
+}
+async function hostFwd(){
+  if(currentQi >= N-1) return;
+  await hostGoQuestion(currentQi + 1);
 }
 async function hostNext(){
   if(currentQi < N-1){ await hostGoQuestion(currentQi + 1); }
   else{
-    const ok = await hostWrite({sid, phase:"collect", qi:N-1});
-    if(!ok){ writeFailToast(); return; }
+    const prev = snapHost();
     renderEntries();
     show("s-collect-host");
     setDock(null);
+    const ok = await hostWrite({sid, phase:"collect", qi:N-1});
+    if(!ok){ writeFailToast(); restoreHost(prev); }
   }
+}
+async function hostBackToLast(){
+  const state = {sid, phase:"reveal", qi:N-1};
+  renderQuestionBase(N-1);
+  renderReveal(state);
+  show("s-game");
+  setDock("next", N-1);
+  const ok = await hostWrite(state);
+  if(!ok){ writeFailToast(); renderEntries(); show("s-collect-host"); setDock(null); }
 }
 function renderEntries(){
   const wrap = document.getElementById("entryRows");
@@ -1055,16 +1216,25 @@ function addEntry(){
 }
 async function hostShowResults(){
   const rows = entryList.slice().sort((a,b)=> b.score - a.score || a.name.localeCompare(b.name));
-  const ok = await hostWrite({sid, phase:"end", qi:N-1, final:rows});
-  if(!ok){ writeFailToast(); return; }
-  setDock(null);
   renderBoard(rows);
+  setDock(null);
+  const ok = await hostWrite({sid, phase:"end", qi:N-1, final:rows});
+  if(!ok){ writeFailToast(); renderEntries(); show("s-collect-host"); }
 }
 function setDock(mode, qi){
   const dock = document.getElementById("dock");
   dock.innerHTML = "";
   dock.classList.toggle("on", !!mode);
   if(!mode) return;
+  const rb = document.createElement("button");
+  rb.className = "iconb"; rb.id = "btnRestart"; rb.title = "Restart the game";
+  rb.textContent = "↻"; rb.onclick = hostRestart;
+  dock.appendChild(rb);
+  const bb = document.createElement("button");
+  bb.className = "iconb"; bb.id = "btnBack"; bb.title = "Previous question";
+  bb.textContent = "◀"; bb.onclick = hostBack;
+  bb.disabled = qi <= 0;
+  dock.appendChild(bb);
   const b = document.createElement("button");
   if(mode === "reveal"){
     b.className = "btn btn-primary"; b.id = "btnReveal";
@@ -1076,6 +1246,13 @@ function setDock(mode, qi){
     b.onclick = hostNext;
   }
   dock.appendChild(b);
+  if(mode === "reveal"){
+    const fb = document.createElement("button");
+    fb.className = "iconb"; fb.id = "btnFwd"; fb.title = "Skip to the next question";
+    fb.textContent = "▶"; fb.onclick = hostFwd;
+    fb.disabled = qi >= N-1;
+    dock.appendChild(fb);
+  }
 }
 
 /* ================= HOST TIMER ================= */
@@ -1128,6 +1305,7 @@ async function playerTick(){
     sid = g.sid; myScore = 0; lastRenderKey = "";
     me.ans = {};
     try{ me.ans = JSON.parse(lsGet("hc_ans_"+sid) || "{}"); }catch(e){ me.ans = {}; }
+    animateNum(document.getElementById("scoreNum"), 0, 200);
   }
   const key = g.phase + ":" + g.qi;
   if(g.phase === "lobby"){
@@ -1197,7 +1375,6 @@ function renderCollect(){
     const d = document.createElement("div");
     const won = me.ans[i]===Q[i].correct;
     d.className = "dot " + (won ? "w" : "l");
-    d.style.animationDelay = (i*0.07)+"s";
     d.textContent = i+1;
     dots.appendChild(d);
   }
@@ -1224,6 +1401,7 @@ function renderQuestionBase(qi){
   document.getElementById("lockline").textContent = (role==="player") ? "Tap A or B to lock your call." : "Read the question out loud, then give them 15 seconds.";
   document.getElementById("reveal").classList.remove("show");
   document.getElementById("resultBadge").className = "resultbadge";
+  renderScene(qi);
   resetCount();
 }
 function renderReveal(g){
@@ -1252,7 +1430,7 @@ function renderReveal(g){
     badge.className = "resultbadge " + (won ? "good" : "bad");
     myScore = 0;
     for(let i=0;i<N;i++){ if(me.ans[i]===Q[i].correct) myScore += 10; }
-    animateNum(document.getElementById("scoreNum"), myScore, 800);
+    animateNum(document.getElementById("scoreNum"), myScore, 700);
   }
   document.getElementById("reveal").classList.add("show");
   document.getElementById("lockline").textContent = "";
@@ -1290,7 +1468,6 @@ function showLessons(){
   Q.forEach((item,i)=>{
     const r = document.createElement("div");
     r.className = "lrow";
-    r.style.animationDelay = (i*0.06)+"s";
     r.innerHTML = '<div class="ln">Lesson '+(i+1)+'</div><div class="lt">'+item.lesson+'</div><div class="lc">'+item.company+'</div>';
     list.appendChild(r);
   });
@@ -1305,7 +1482,7 @@ function launchConfetti(){
   if(!cx || !window.requestAnimationFrame) return;
   cv.width = innerWidth; cv.height = innerHeight;
   const colors = ["#FF2E88","#29E6FF","#B44CFF","#FF8C42","#FFD166","#FFFFFF"];
-  const P = Array.from({length:170},()=>({
+  const P = Array.from({length:150},()=>({
     x:Math.random()*cv.width, y:-30-Math.random()*cv.height*0.4,
     w:5+Math.random()*6, h:8+Math.random()*9,
     vy:2.2+Math.random()*3.4, vx:(Math.random()-.5)*2.4,
