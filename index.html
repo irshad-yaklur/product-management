@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hard Calls · Live Game</title>
+<style>
+:root{
+  --bg:#050507;
+  --ink:#F5F5F7;
+  --dim:#98989F;
+  --glass:rgba(255,255,255,.055);
+  --glass2:rgba(255,255,255,.09);
+  --line:rgba(255,255,255,.12);
+  --blue:#0A84FF;
+  --purple:#BF5AF2;
+  --pink:#FF375F;
+  --orange:#FF9F0A;
+  --green:#30D158;
+  --red:#FF453A;
+  --gold:#FFD60A;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --spring:cubic-bezier(.22,1.2,.36,1);
+  --ease:cubic-bezier(.25,.8,.25,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font);
+  font-size:16px;line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ============ AURORA BACKGROUND ============ */
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.32;will-change:transform}
+.blob.b1{width:52vw;height:52vw;min-width:420px;min-height:420px;background:var(--blue);top:-18%;left:-12%;animation:drift1 26s ease-in-out infinite alternate}
+.blob.b2{width:44vw;height:44vw;min-width:380px;min-height:380px;background:var(--purple);bottom:-20%;right:-10%;animation:drift2 32s ease-in-out infinite alternate}
+.blob.b3{width:34vw;height:34vw;min-width:300px;min-height:300px;background:var(--pink);top:34%;right:22%;opacity:.2;animation:drift3 38s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(10vw,8vh) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-8vw,-9vh) scale(1.1)}}
+@keyframes drift3{to{transform:translate(-10vw,10vh) scale(1.25)}}
+
+/* ============ LAYOUT ============ */
+.screen{display:none;min-height:100vh;min-height:100dvh;position:relative;z-index:1;flex-direction:column;align-items:center;padding:22px 18px 120px}
+.screen.active{display:flex;animation:screenIn .65s var(--ease)}
+@keyframes screenIn{from{opacity:0;transform:translateY(26px) scale(.985);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
+.col{width:100%;max-width:620px;display:flex;flex-direction:column;align-items:center}
+
+/* ============ TYPE ============ */
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);text-align:center}
+h1{font-weight:700;font-size:clamp(48px,11vw,92px);line-height:1;letter-spacing:-.035em;text-align:center}
+h2{font-weight:700;font-size:clamp(28px,5.6vw,44px);letter-spacing:-.025em;line-height:1.1;text-align:center}
+.grad{background:linear-gradient(92deg,var(--blue),var(--purple) 55%,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--dim);text-align:center;font-size:clamp(15px,2.3vw,18px);max-width:460px;font-weight:500}
+
+/* ============ BUTTONS ============ */
+.btn{
+  font-family:var(--font);font-weight:600;font-size:16.5px;letter-spacing:-.01em;
+  border:none;border-radius:999px;padding:16px 30px;cursor:pointer;
+  transition:transform .25s var(--spring),box-shadow .25s var(--ease),background .2s,opacity .2s;
+}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.btn-primary{background:#fff;color:#000}
+.btn-primary:hover{transform:scale(1.035);box-shadow:0 10px 34px rgba(255,255,255,.22)}
+.btn-primary:active{transform:scale(.97)}
+.btn-glass{background:var(--glass2);color:var(--ink);border:1px solid var(--line);backdrop-filter:blur(20px)}
+.btn-glass:hover{background:rgba(255,255,255,.14);transform:scale(1.02)}
+.btn-ghost{background:none;color:var(--dim);font-weight:600;cursor:pointer;border:none;font-size:15px}
+.btn-ghost:hover{color:var(--ink)}
+.btn-wide{width:100%;max-width:340px}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* ============ WELCOME ============ */
+#s-welcome .col{justify-content:center;min-height:82vh}
+.orb{
+  width:86px;height:86px;border-radius:50%;margin-bottom:26px;position:relative;
+  background:conic-gradient(from 0deg,var(--blue),var(--purple),var(--pink),var(--orange),var(--blue));
+  animation:spin 7s linear infinite;
+  filter:saturate(1.3);
+}
+.orb::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.welcome-btns{display:flex;flex-direction:column;gap:14px;margin-top:36px;width:100%;max-width:340px;align-items:center}
+.foot{margin-top:44px;font-size:12px;letter-spacing:.06em;color:var(--dim);text-align:center;line-height:2;text-transform:uppercase;font-weight:600}
+
+/* ============ INPUTS ============ */
+.namebox{width:100%;max-width:340px;margin-top:30px}
+.namebox label{display:block;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:10px;text-align:center}
+.namebox input{
+  width:100%;background:var(--glass);border:1px solid var(--line);border-radius:16px;
+  color:var(--ink);font-family:var(--font);font-weight:600;font-size:19px;text-align:center;padding:16px;
+  backdrop-filter:blur(20px);transition:border-color .2s,box-shadow .2s;
+}
+.namebox input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(10,132,255,.22)}
+.formgrid{width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px;margin-top:26px}
+.field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:6px}
+.field input{
+  width:100%;background:var(--glass);border:1px solid var(--line);border-radius:14px;
+  color:var(--ink);font-family:var(--font);font-weight:600;font-size:15.5px;padding:13px 15px;backdrop-filter:blur(20px);
+}
+.field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.2)}
+.errline{margin-top:12px;font-size:13.5px;font-weight:600;color:var(--red);text-align:center;min-height:20px;max-width:380px}
+
+/* ============ WAITING ORB ============ */
+.waitwrap{display:flex;flex-direction:column;align-items:center;gap:26px;margin-top:40px}
+.pulse{
+  width:104px;height:104px;border-radius:50%;position:relative;
+  background:conic-gradient(from 0deg,var(--blue),var(--purple),var(--pink),var(--blue));
+  animation:spin 5s linear infinite,breathe 2.6s ease-in-out infinite alternate;
+}
+.pulse::after{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--bg)}
+@keyframes breathe{from{transform:scale(.94)}to{transform:scale(1.06)}}
+.waittext{font-size:18px;font-weight:600;color:var(--ink);text-align:center}
+.waitsub{font-size:14px;color:var(--dim);text-align:center;margin-top:-14px}
+
+/* ============ LOBBY ============ */
+.linkcard{
+  width:100%;max-width:460px;margin-top:26px;background:var(--glass);border:1px solid var(--line);
+  border-radius:18px;padding:16px 18px;backdrop-filter:blur(20px);text-align:center;
+}
+.linkcard .lk{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.linkcard .lu{font-weight:600;font-size:14.5px;word-break:break-all;color:var(--ink)}
+.avatar{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;flex:none;text-transform:uppercase;
+}
+
+/* ============ TOP BAR ============ */
+.topbar{width:100%;max-width:620px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.wordmark{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+.topbar .spacer{flex:1}
+.livedot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:livepulse 2s ease-in-out infinite}
+.livedot.warn{background:var(--orange)}
+@keyframes livepulse{50%{opacity:.35}}
+.scorepill{
+  font-weight:700;font-size:14px;color:var(--ink);
+  background:var(--glass2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;backdrop-filter:blur(20px);
+}
+.is-host .scorepill{display:none}
+
+/* ============ PROGRESS ============ */
+.progresswrap{width:100%;max-width:620px;margin:6px 0 22px}
+.progresslabel{display:flex;justify-content:space-between;font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+.progressbar{height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.progressfill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink));transition:width .8s var(--ease)}
+
+/* ============ QUESTION ============ */
+.qmeta{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;text-align:center;animation:fadeUp .6s var(--ease) both}
+.qtext{
+  font-weight:600;font-size:clamp(21px,3.8vw,28px);line-height:1.42;letter-spacing:-.015em;
+  text-align:center;max-width:600px;animation:fadeUp .6s var(--ease) .08s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.options{display:grid;grid-template-columns:1fr;gap:14px;width:100%;margin-top:30px}
+@media(min-width:560px){.options{grid-template-columns:1fr 1fr}}
+.opt{
+  position:relative;text-align:left;cursor:pointer;
+  background:var(--glass);border:1px solid var(--line);border-radius:22px;
+  padding:20px 20px 18px;color:var(--ink);font-family:var(--font);
+  backdrop-filter:blur(22px);
+  transition:transform .3s var(--spring),border-color .25s,background .25s,box-shadow .3s,opacity .3s;
+  animation:fadeUp .6s var(--ease) both;
+}
+.opt:nth-child(1){animation-delay:.16s}
+.opt:nth-child(2){animation-delay:.24s}
+.opt .ol{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:12px;font-weight:700;font-size:16px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;margin-bottom:12px;
+}
+.opt .ot{display:block;font-weight:600;font-size:16.5px;line-height:1.45;letter-spacing:-.01em}
+.opt .check{
+  position:absolute;top:16px;right:16px;width:26px;height:26px;border-radius:50%;
+  background:#fff;display:none;align-items:center;justify-content:center;
+}
+.opt .check svg{width:14px;height:14px}
+.opt .check path{stroke:#000;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;animation:draw .35s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.opt:not(:disabled):hover{transform:translateY(-3px);border-color:rgba(255,255,255,.3)}
+.opt.picked{
+  border-color:transparent;background:rgba(10,132,255,.16);
+  box-shadow:0 0 0 2px var(--blue),0 12px 40px rgba(10,132,255,.3);
+  animation:pickpop .4s var(--spring);
+}
+@keyframes pickpop{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
+.opt.picked .check{display:flex}
+.opt.faded{opacity:.45}
+.opt.correct{
+  border-color:transparent;background:rgba(48,209,88,.14);
+  box-shadow:0 0 0 2px var(--green),0 0 50px rgba(48,209,88,.35);
+}
+.opt.wrongpick{border-color:transparent;box-shadow:0 0 0 2px var(--red);background:rgba(255,69,58,.1)}
+.is-host .opt{cursor:default}
+.lockline{margin-top:16px;font-size:13px;font-weight:600;color:var(--dim);text-align:center;letter-spacing:.04em;min-height:20px}
+
+/* ============ HOST TIMER ============ */
+.countwrap{display:none;margin-top:20px}
+.is-host .countwrap{display:block}
+.countchip{
+  font-weight:700;font-size:15px;color:var(--ink);cursor:pointer;
+  background:var(--glass2);border:1px solid var(--line);border-radius:999px;padding:11px 22px;backdrop-filter:blur(20px);
+  transition:transform .2s var(--spring);
+}
+.countchip:hover{transform:scale(1.04)}
+.countchip.hot{color:var(--orange);border-color:rgba(255,159,10,.5)}
+.countchip.zero{color:var(--red);border-color:rgba(255,69,58,.6);animation:livepulse 1s ease-in-out infinite}
+
+/* ============ HOST DOCK ============ */
+.dock{
+  display:none;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;
+  background:rgba(20,20,24,.7);border:1px solid var(--line);border-radius:999px;
+  padding:10px;backdrop-filter:blur(30px) saturate(1.5);
+  box-shadow:0 18px 50px rgba(0,0,0,.5);
+  gap:10px;align-items:center;
+}
+.is-host .dock.on{display:flex}
+.dock .btn{padding:13px 26px;font-size:15.5px}
+
+/* ============ REVEAL ============ */
+.reveal{display:none;width:100%;flex-direction:column;align-items:center}
+.reveal.show{display:flex}
+.resultbadge{
+  display:none;margin:26px 0 4px;font-weight:800;font-size:clamp(34px,7vw,52px);letter-spacing:-.03em;
+  animation:badgeIn .6s var(--spring) both;
+}
+@keyframes badgeIn{0%{opacity:0;transform:scale(.3)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+.is-player .resultbadge{display:block}
+.resultbadge.good{color:var(--green)}
+.resultbadge.bad{color:var(--red)}
+.correctpill{
+  margin-top:22px;font-weight:700;font-size:15px;letter-spacing:.02em;color:var(--green);
+  background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.45);border-radius:999px;padding:10px 20px;
+  animation:fadeUp .5s var(--ease) both;
+}
+.storycard,.factcard,.lessoncard{
+  width:100%;border-radius:22px;padding:22px 22px 20px;margin-top:16px;
+  backdrop-filter:blur(22px);animation:fadeUp .6s var(--ease) both;
+}
+.storycard{background:var(--glass);border:1px solid var(--line)}
+.factcard{background:rgba(255,159,10,.09);border:1px solid rgba(255,159,10,.32)}
+.lessoncard{
+  background:rgba(10,132,255,.1);border:1px solid rgba(10,132,255,.4);
+  box-shadow:0 0 44px rgba(10,132,255,.16);
+}
+.klabel{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.factcard .klabel{color:var(--orange)}
+.lessoncard .klabel{color:var(--blue)}
+.company{font-weight:700;font-size:clamp(22px,4.2vw,30px);letter-spacing:-.02em;margin-bottom:12px}
+.storyline{font-size:15.5px;color:var(--ink);font-weight:500;line-height:1.55}
+.storyline + .storyline{margin-top:10px;color:var(--dim)}
+.factline{font-size:15.5px;font-weight:500}
+.lessonline{font-weight:700;font-size:clamp(17px,3vw,21px);letter-spacing:-.015em;line-height:1.4}
+.d1{animation-delay:.1s}.d2{animation-delay:.22s}.d3{animation-delay:.34s}
+
+/* ============ COLLECT ============ */
+.bigscore{font-weight:800;font-size:clamp(72px,18vw,120px);letter-spacing:-.05em;line-height:1;margin-top:14px}
+.dots{display:flex;justify-content:center;gap:7px;margin:22px 0 6px;flex-wrap:wrap}
+.dot{
+  width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#fff;animation:chipIn2 .5s var(--spring) both;
+}
+@keyframes chipIn2{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.dot.w{background:var(--green)}
+.dot.l{background:rgba(255,69,58,.85)}
+.entryrows{width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px;margin-top:24px}
+.erow{
+  display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--line);
+  border-radius:16px;padding:10px 14px;backdrop-filter:blur(20px);animation:chipIn2 .4s var(--spring);
+}
+.erow .en{font-weight:700;font-size:16px;flex:1}
+.erow .es{font-weight:700;font-size:17px}
+.erow .ex{background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:4px 8px}
+.erow .ex:hover{color:var(--red)}
+.entryform{display:flex;gap:10px;width:100%;max-width:420px;margin-top:14px}
+.entryform input{
+  background:var(--glass);border:1px solid var(--line);border-radius:14px;color:var(--ink);
+  font-family:var(--font);font-weight:600;font-size:16px;padding:13px 15px;backdrop-filter:blur(20px);
+}
+.entryform input:focus{outline:none;border-color:var(--blue)}
+.entryform .fn{flex:1;min-width:0}
+.entryform .fs{width:92px;text-align:center}
+
+/* ============ LEADERBOARD ============ */
+#s-board .col{max-width:520px}
+.lb{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:30px}
+.lb-row{
+  display:flex;align-items:center;gap:14px;
+  background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:14px 18px;
+  backdrop-filter:blur(22px);
+  opacity:0;transform:translateY(26px) scale(.97);
+}
+.lb-row.in{animation:rowIn .7s var(--spring) forwards}
+@keyframes rowIn{to{opacity:1;transform:none}}
+.lb-rank{
+  width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;background:var(--glass2);border:1px solid var(--line);flex:none;
+}
+.lb-name{font-weight:700;font-size:17px;flex:1;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-score{font-weight:700;font-size:20px;letter-spacing:-.02em}
+.lb-row.first{
+  background:linear-gradient(120deg,rgba(255,214,10,.16),rgba(255,159,10,.1));
+  border:1px solid rgba(255,214,10,.55);
+  box-shadow:0 0 60px rgba(255,214,10,.22);
+}
+.lb-row.first .lb-rank{background:linear-gradient(135deg,var(--gold),var(--orange));color:#3A2A00;border:none}
+.wintag{
+  display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.18em;color:var(--gold);
+  border:1px solid rgba(255,214,10,.5);border-radius:99px;padding:3px 10px;margin-left:8px;vertical-align:middle;
+}
+
+/* ============ LESSONS RECAP ============ */
+.lessonlist{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.lrow{
+  background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:16px 18px;
+  backdrop-filter:blur(20px);animation:fadeUp .5s var(--ease) both;
+}
+.lrow .ln{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+.lrow .lt{font-weight:700;font-size:16.5px;letter-spacing:-.01em;margin-top:4px}
+.lrow .lc{font-size:12.5px;color:var(--dim);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .lb-row{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<!-- ============ WELCOME ============ -->
+<section class="screen active" id="s-welcome">
+  <div class="col">
+    <div class="orb"></div>
+    <div class="eyebrow">Ten real product decisions</div>
+    <h1 style="margin-top:10px">Hard <span class="grad">Calls</span></h1>
+    <p class="sub" style="margin-top:16px">Real companies, at the moment of a big decision. You choose. History gives the answer.</p>
+    <div class="welcome-btns" id="welcomeBtns">
+      <button class="btn btn-primary btn-wide" id="btnJoin" onclick="show('s-join')">Join the game</button>
+      <button class="btn btn-glass btn-wide" id="btnHost" onclick="hostEnter()">I am the host</button>
+    </div>
+    <div class="foot">Works on any laptop or phone · One host controls the game</div>
+  </div>
+</section>
+
+<!-- ============ JOIN ============ -->
+<section class="screen" id="s-join">
+  <div class="col" style="justify-content:center;min-height:78vh">
+    <h2>What is your <span class="grad">name?</span></h2>
+    <div class="namebox">
+      <label for="nameInput">Use your first name</label>
+      <input id="nameInput" maxlength="16" placeholder="Your name" autocomplete="off">
+    </div>
+    <div class="errline" id="joinErr"></div>
+    <div class="welcome-btns" style="margin-top:8px">
+      <button class="btn btn-primary btn-wide" id="btnJoinGo" onclick="playerJoin()">I am ready</button>
+      <button class="btn btn-ghost" onclick="show('s-welcome')">Back</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOST CONNECT ============ -->
+<section class="screen" id="s-connect">
+  <div class="col" style="justify-content:center;min-height:80vh">
+    <h2>Host <span class="grad">setup</span></h2>
+    <p class="sub" style="margin-top:12px">Paste your access token. It stays only in your browser and is never shared with the players.</p>
+    <div class="formgrid">
+      <div class="field"><label for="ghOwner">GitHub username</label><input id="ghOwner" autocomplete="off"></div>
+      <div class="field"><label for="ghRepo">Repository name</label><input id="ghRepo" autocomplete="off"></div>
+      <div class="field"><label for="ghBranch">Branch</label><input id="ghBranch" value="main" autocomplete="off"></div>
+      <div class="field"><label for="ghToken">Access token</label><input id="ghToken" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+    </div>
+    <div class="errline" id="connectErr"></div>
+    <div class="welcome-btns" style="margin-top:8px">
+      <button class="btn btn-primary btn-wide" id="btnConnect" onclick="hostConnect()">Connect</button>
+      <button class="btn btn-ghost" onclick="show('s-welcome')">Back</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLAYER WAIT ============ -->
+<section class="screen" id="s-wait">
+  <div class="col" style="justify-content:center;min-height:78vh">
+    <div class="waitwrap">
+      <div class="pulse"></div>
+      <div class="waittext" id="waitText">You are in!</div>
+      <div class="waitsub" id="waitSub">Wait for the host to start the game.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOST RESUME ============ -->
+<section class="screen" id="s-resume">
+  <div class="col" style="justify-content:center;min-height:78vh">
+    <h2>A game is already <span class="grad">running</span></h2>
+    <p class="sub" style="margin-top:14px">You can continue it, or start a fresh one.</p>
+    <div class="welcome-btns">
+      <button class="btn btn-primary btn-wide" onclick="hostResume()">Continue that game</button>
+      <button class="btn btn-glass btn-wide" onclick="hostNewGame()">Start a new game</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOST LOBBY ============ -->
+<section class="screen" id="s-lobby">
+  <div class="col" style="justify-content:center;min-height:80vh">
+    <div class="pulse" style="width:84px;height:84px"></div>
+    <h2 style="margin-top:26px">The room is <span class="grad">open</span></h2>
+    <div class="linkcard">
+      <div class="lk">Share this link in the Teams chat</div>
+      <div class="lu" id="shareUrl"></div>
+    </div>
+    <div class="welcome-btns" style="margin-top:22px">
+      <button class="btn btn-glass btn-wide" id="btnCopy" onclick="copyLink()">Copy the link</button>
+      <button class="btn btn-primary btn-wide" id="btnStart" onclick="hostStartGame()">Start the game</button>
+    </div>
+    <p class="sub" style="margin-top:18px;font-size:14px">Everyone opens the link and taps “Join the game”.<br>Ask for a quick thumbs-up in Teams when they are in.</p>
+  </div>
+</section>
+
+<!-- ============ GAME ============ -->
+<section class="screen" id="s-game">
+  <div class="topbar">
+    <span class="wordmark">Hard Calls</span>
+    <span class="livedot" id="livedot"></span>
+    <span class="spacer"></span>
+    <span class="scorepill">Score <span id="scoreNum">0</span></span>
+  </div>
+  <div class="progresswrap">
+    <div class="progresslabel"><span id="qLabel">Question 1 of 10</span><span id="qChip"></span></div>
+    <div class="progressbar"><div class="progressfill" id="progressfill"></div></div>
+  </div>
+  <div class="col">
+    <div class="qmeta" id="qMeta"></div>
+    <div class="qtext" id="qText"></div>
+    <div class="options">
+      <button class="opt" id="optA" onclick="pickAns('A')">
+        <span class="ol">A</span>
+        <span class="ot" id="optAText"></span>
+        <span class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5 10 18 20 6"/></svg></span>
+      </button>
+      <button class="opt" id="optB" onclick="pickAns('B')">
+        <span class="ol">B</span>
+        <span class="ot" id="optBText"></span>
+        <span class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5 10 18 20 6"/></svg></span>
+      </button>
+    </div>
+    <div class="lockline" id="lockline"></div>
+    <div class="countwrap"><button class="countchip" id="countChip" onclick="startCount()">Start a 15 second timer</button></div>
+
+    <div class="reveal" id="reveal">
+      <div class="resultbadge" id="resultBadge"></div>
+      <div class="correctpill" id="correctPill">The correct answer: A</div>
+      <div class="storycard d1">
+        <div class="klabel">The real story</div>
+        <div class="company grad" id="rCompany"></div>
+        <div class="storyline" id="rDid"></div>
+        <div class="storyline" id="rHappened"></div>
+      </div>
+      <div class="factcard d2">
+        <div class="klabel">✦ Fun fact</div>
+        <div class="factline" id="rFact"></div>
+      </div>
+      <div class="lessoncard d3">
+        <div class="klabel">Lesson for our work</div>
+        <div class="lessonline" id="rLesson"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLLECT · PLAYER ============ -->
+<section class="screen" id="s-collect">
+  <div class="col" style="justify-content:center;min-height:80vh">
+    <div class="eyebrow">Your final score</div>
+    <div class="bigscore grad" id="finalScore">0</div>
+    <div class="dots" id="scDots"></div>
+    <h2 style="margin-top:18px;font-size:clamp(22px,4.5vw,32px)">Tell the host your score!</h2>
+    <p class="sub" style="margin-top:10px">Say it out loud, or type it in the Teams chat.<br>The results are coming in a moment.</p>
+  </div>
+</section>
+
+<!-- ============ COLLECT · HOST ============ -->
+<section class="screen" id="s-collect-host">
+  <div class="col">
+    <div class="eyebrow" style="margin-top:20px">Collect the scores</div>
+    <h2 style="margin-top:10px">Type each name and <span class="grad">score</span></h2>
+    <p class="sub" style="margin-top:12px">Every player now sees their score. Ask them to call it out or type it in Teams.</p>
+    <div class="entryrows" id="entryRows"></div>
+    <div class="entryform">
+      <input class="fn" id="entryName" maxlength="16" placeholder="Name" autocomplete="off">
+      <input class="fs" id="entryScore" type="number" min="0" max="100" step="10" placeholder="Score">
+      <button class="btn btn-glass" style="padding:13px 20px" onclick="addEntry()">Add</button>
+    </div>
+    <div class="welcome-btns" style="margin-top:26px">
+      <button class="btn btn-primary btn-wide" id="btnShowResults" onclick="hostShowResults()" disabled>Show the final results</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LEADERBOARD ============ -->
+<section class="screen" id="s-board">
+  <div class="col">
+    <div class="eyebrow" style="margin-top:20px">The final results</div>
+    <h2 style="margin-top:10px">Who made the best <span class="grad">calls?</span></h2>
+    <div class="lb" id="lbList"></div>
+    <div class="welcome-btns" style="margin-top:30px">
+      <button class="btn btn-primary btn-wide" onclick="showLessons()">See all 10 lessons</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LESSONS ============ -->
+<section class="screen" id="s-lessons">
+  <div class="col">
+    <div class="eyebrow" style="margin-top:20px">Take these back to work</div>
+    <h2 style="margin-top:10px">The 10 <span class="grad">lessons</span></h2>
+    <div class="lessonlist" id="lessonList"></div>
+    <div class="welcome-btns" style="margin-top:26px">
+      <button class="btn btn-glass btn-wide" onclick="show('s-board')">Back to results</button>
+    </div>
+  </div>
+</section>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/* =====================================================================
+   HOW TO RUN THIS GAME (everything happens on github.com, free):
+   1. Create a new PUBLIC repository. Upload this file, renamed index.html.
+   2. Repo Settings → Pages → Deploy from a branch → main, root → Save.
+      After 1 to 2 minutes your game link is:
+      https://YOURNAME.github.io/REPONAME/
+   3. Make a token (host only): GitHub → your profile Settings →
+      Developer settings → Personal access tokens → Fine-grained tokens →
+      Generate. Expiry 7 days. Repository access: only this repo.
+      Permissions → Contents → Read and write. Copy the token.
+   4. Open the game link. Tap "I am the host". The username and repo are
+      filled in for you. Paste the token. Connect.
+   5. Share the same game link in Teams. Players tap "Join the game".
+   The token never leaves the host's browser. Players need nothing.
+   ===================================================================== */
+
+/* ================= QUESTIONS ================= */
+const Q = [
+ {chip:"2000 · USA",
+  text:"You run the biggest movie rental company in the world, with 9,000 stores. A small startup mails DVDs to people's homes. It is losing money. The founders offer to sell it to you for 50 million dollars.",
+  A:"Buy the startup.", B:"Say no. You are too big to worry.",
+  correct:"A", company:"Blockbuster vs Netflix",
+  did:"Blockbuster said no. The story goes that they almost laughed at the offer.",
+  happened:"Blockbuster went bankrupt in 2010. Netflix became worth hundreds of billions.",
+  fact:"In 2000, Blockbuster made about 800 million dollars a year just from late fees.",
+  lesson:"Take small rivals seriously while they are still small."},
+
+ {chip:"2010 · SAN FRANCISCO",
+  text:"Your app has many features: check-ins, plans, photos. Almost nobody uses it. But people love one small part: posting photos with filters. Your investors paid for the big vision.",
+  A:"Keep all the features. Improve them.", B:"Delete everything except photos and filters.",
+  correct:"B", company:"Burbn → Instagram",
+  did:"The founders deleted almost everything and relaunched the app as Instagram.",
+  happened:"25,000 people joined on day one. Two years later, Facebook bought it for 1 billion dollars.",
+  fact:"Instagram had only 13 employees when it was sold.",
+  lesson:"Cutting features can be your best feature."},
+
+ {chip:"2009 · NEW YORK",
+  text:"Your website lets people rent rooms in real homes. It is not growing in New York. You notice the photos of the homes look dark and blurry. You are a tiny team with almost no money.",
+  A:"Email hosts some photo tips. That can scale.", B:"Fly there. Take better photos yourself, door to door.",
+  correct:"B", company:"Airbnb",
+  did:"The founders rented a camera and photographed the homes themselves.",
+  happened:"Weekly income in New York doubled within a month.",
+  fact:"Earlier, the founders paid their bills by selling cereal boxes called Obama O's.",
+  lesson:"Do small things by hand first. Scale later."},
+
+ {chip:"2008 · BOSTON",
+  text:"Your file-syncing product is far from ready. Building it well will take many months. You could stay quiet and keep building. Or you could post a simple 3-minute demo video online today.",
+  A:"Build first. Do not show unfinished work.", B:"Post the video now, before the product is ready.",
+  correct:"B", company:"Dropbox",
+  did:"Founder Drew Houston posted the demo video online.",
+  happened:"The waiting list jumped from 5,000 to 75,000 people overnight.",
+  fact:"Steve Jobs told Drew that Dropbox was a feature, not a product. It is now worth billions.",
+  lesson:"Test if people want it before you build all of it."},
+
+ {chip:"2008 · USA",
+  text:"Your coffee chain grew too fast, and the coffee quality dropped. You could close all 7,100 stores for one evening to retrain every barista. It would cost about 6 million dollars, and the whole world would know.",
+  A:"Close every store. Retrain everyone, in the open.", B:"Train quietly, store by store. Tell no one.",
+  correct:"A", company:"Starbucks",
+  did:"They closed all 7,100 US stores for one evening and retrained 135,000 baristas.",
+  happened:"It became a famous moment of the company's comeback. Quality and trust returned.",
+  fact:"That evening, rival Dunkin' sold lattes for 99 cents to catch the waiting customers.",
+  lesson:"Fixing quality in the open builds trust."},
+
+ {chip:"2004 · SEATTLE",
+  text:"Your team has an idea: unlimited two-day shipping for 79 dollars a year. The finance team tests the numbers many different ways. Every single version loses money.",
+  A:"Stop the idea. The numbers do not work.", B:"Launch it anyway.",
+  correct:"B", company:"Amazon Prime",
+  did:"Jeff Bezos launched it, even against the numbers.",
+  happened:"Prime became Amazon's growth engine. Today it has over 200 million members.",
+  fact:"Amazon lost money on shipping for years before Prime finally paid off.",
+  lesson:"Some big bets will never look good in a spreadsheet."},
+
+ {chip:"1985 · ATLANTA",
+  text:"You make the world's most famous drink. But your rival keeps winning taste tests. You create a new recipe. 200,000 taste tests say the new one is better.",
+  A:"Replace the 99-year-old recipe with the new winner.", B:"Ignore your biggest research ever. Keep the old recipe.",
+  correct:"B", company:"New Coke",
+  did:"Coca-Cola replaced the recipe. The data looked perfect.",
+  happened:"People were furious. The old recipe came back after just 79 days.",
+  fact:"The return of old Coke was breaking news on live TV. It even interrupted a soap opera.",
+  lesson:"Data shows what people taste, not what they love."},
+
+ {chip:"2011 · CALIFORNIA",
+  text:"Streaming is your future. DVDs are your past. A clean plan: split into two companies with two websites. But customers would need two accounts and two bills.",
+  A:"Split into two focused companies.", B:"Stay as one service, even if it is messier inside.",
+  correct:"B", company:"Netflix · Qwikster",
+  did:"Netflix announced the split. The DVD company would be called Qwikster.",
+  happened:"800,000 customers left in one quarter. The plan was cancelled in less than a month.",
+  fact:"Netflix forgot to check Twitter first. The @Qwikster name was already taken, by an account with a naughty Elmo photo.",
+  lesson:"Never make customers pay for your company structure."},
+
+ {chip:"1975 · ROCHESTER",
+  text:"A young engineer in your lab shows you the first digital camera ever made. The photos are blurry, and each one takes 23 seconds. Your film business owns the market and makes huge profits.",
+  A:"Back the digital camera, even if it hurts film.", B:"Hide it. Protect the film business.",
+  correct:"A", company:"Kodak",
+  did:"Kodak hid the invention. The engineer was told it was cute, and to tell no one.",
+  happened:"The world went digital without them. Kodak went bankrupt in 2012.",
+  fact:"In 1996, Kodak was worth 28 billion dollars with 140,000 workers. Instagram sold for 1 billion with 13.",
+  lesson:"Eat your own business before someone else eats it."},
+
+ {chip:"2012 · VANCOUVER",
+  text:"You spent four years and 17 million dollars on an online game. It is dying. But the small chat tool your team built for itself is the best thing you have ever used.",
+  A:"Keep fighting for the game.", B:"Shut the game down. Bet everything on the chat tool.",
+  correct:"B", company:"Tiny Speck → Slack",
+  did:"Founder Stewart Butterfield closed the game and launched the chat tool as Slack.",
+  happened:"Slack became one of the fastest-growing work tools ever. It later sold for 27.7 billion dollars.",
+  fact:"He had done this before. His first failed game became Flickr.",
+  lesson:"A failed project can hide your next big product."}
+];
+const N = Q.length;
+
+/* ================= STATE ================= */
+const POLL = window.__TEST_POLL__ || 3000;
+const STATE_PATH = "state.json";
+let role = null;                       // 'host' | 'player'
+let sid = null;
+let me = { name:"", ans:{} };
+let lastRenderKey = "";
+let myScore = 0;
+let loopTimer = null;
+let existingState = null;
+let entryList = [];                    // host: [{name, score}]
+let gh = { owner:"", repo:"", branch:"main", token:"", sha:null };
+
+/* ================= SAFE LOCAL SAVE ================= */
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+/* ================= REPO DISCOVERY ================= */
+function deriveRepo(){
+  try{
+    const p = new URLSearchParams(location.search).get("gh");
+    if(p){ const a = p.split("/"); return {owner:a[0], repo:a[1], branch:a[2]||"main"}; }
+    const h = location.hostname;
+    if(h.endsWith(".github.io")){
+      const owner = h.split(".")[0];
+      const seg = location.pathname.split("/").filter(Boolean);
+      return {owner, repo: seg.length ? seg[0] : (owner + ".github.io"), branch:"main"};
+    }
+  }catch(e){}
+  return null;
+}
+
+/* ================= SYNC · PLAYER READ (no login needed) ================= */
+function rawURL(){
+  return "https://raw.githubusercontent.com/" + gh.owner + "/" + gh.repo + "/" + gh.branch +
+         "/" + STATE_PATH + "?v=" + Date.now() + Math.random().toString(36).slice(2,8);
+}
+async function readState(){
+  try{
+    const r = await fetch(rawURL(), {cache:"no-store"});
+    if(!r.ok){ setLive(r.status === 404); return null; }
+    setLive(true);
+    return await r.json();
+  }catch(e){ setLive(false); return null; }
+}
+
+/* ================= SYNC · HOST WRITE (token stays in this browser) ================= */
+function apiURL(){ return "https://api.github.com/repos/" + gh.owner + "/" + gh.repo + "/contents/" + STATE_PATH; }
+function hdr(){ return {"Authorization":"Bearer " + gh.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json"}; }
+function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+function b64d(s){ return decodeURIComponent(escape(atob(String(s).replace(/\s/g,"")))); }
+async function hostRead(){
+  const r = await fetch(apiURL() + "?ref=" + gh.branch, {headers:hdr(), cache:"no-store"});
+  if(r.status === 404){ gh.sha = null; return null; }
+  if(!r.ok) throw new Error("read failed " + r.status);
+  const j = await r.json();
+  gh.sha = j.sha;
+  return JSON.parse(b64d(j.content));
+}
+async function hostWrite(state){
+  for(let attempt = 0; attempt < 2; attempt++){
+    const body = {message:"sync", content:b64e(JSON.stringify(state)), branch:gh.branch};
+    if(gh.sha) body.sha = gh.sha;
+    try{
+      const r = await fetch(apiURL(), {method:"PUT", headers:hdr(), body:JSON.stringify(body)});
+      if(r.ok){ const j = await r.json(); gh.sha = j.content.sha; setLive(true); return true; }
+      if(r.status === 409 || r.status === 422){ try{ await hostRead(); }catch(e){ gh.sha = null; } continue; }
+      setLive(false); return false;
+    }catch(e){ setLive(false); return false; }
+  }
+  setLive(false); return false;
+}
+function setLive(ok){
+  const d = document.getElementById("livedot");
+  if(d) d.classList.toggle("warn", !ok);
+}
+
+/* ================= UI BASICS ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function hueOf(str){ let h=0; for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))%360; return h; }
+function avatarEl(name, size){
+  const h = hueOf(name);
+  const d = document.createElement("div");
+  d.className = "avatar";
+  d.style.background = "linear-gradient(135deg,hsl("+h+",82%,58%),hsl("+((h+50)%360)+",82%,48%))";
+  d.textContent = name.trim().slice(0,2);
+  if(size){ d.style.width=size+"px"; d.style.height=size+"px"; }
+  return d;
+}
+function animateNum(el, to, dur){
+  const from = parseInt(el.textContent)||0;
+  if(!window.requestAnimationFrame || window.__TEST_POLL__){ el.textContent = to; return; }
+  const t0 = performance.now();
+  (function step(t){
+    const p = Math.min(1,(t-t0)/(dur||700));
+    el.textContent = Math.round(from + (to-from)*(1-Math.pow(1-p,3)));
+    if(p<1) requestAnimationFrame(step);
+  })(t0);
+}
+
+/* ================= HOST ================= */
+function hostEnter(){
+  role = "host";
+  document.body.classList.add("is-host");
+  const d = deriveRepo();
+  const saved = lsGet("hc_repo");
+  const s = saved ? JSON.parse(saved) : null;
+  document.getElementById("ghOwner").value  = (d && d.owner)  || (s && s.owner)  || "";
+  document.getElementById("ghRepo").value   = (d && d.repo)   || (s && s.repo)   || "";
+  document.getElementById("ghBranch").value = (d && d.branch) || (s && s.branch) || "main";
+  show("s-connect");
+}
+async function hostConnect(){
+  gh.owner  = document.getElementById("ghOwner").value.trim();
+  gh.repo   = document.getElementById("ghRepo").value.trim();
+  gh.branch = document.getElementById("ghBranch").value.trim() || "main";
+  gh.token  = document.getElementById("ghToken").value.trim();
+  const err = document.getElementById("connectErr");
+  err.textContent = "";
+  if(!gh.owner || !gh.repo || !gh.token){ err.textContent = "Please fill every field."; return; }
+  document.getElementById("btnConnect").disabled = true;
+  try{
+    const r = await fetch("https://api.github.com/repos/" + gh.owner + "/" + gh.repo, {headers:hdr(), cache:"no-store"});
+    if(!r.ok) throw new Error(String(r.status));
+    lsSet("hc_repo", JSON.stringify({owner:gh.owner, repo:gh.repo, branch:gh.branch}));
+    existingState = null;
+    try{ existingState = await hostRead(); }catch(e){}
+    if(existingState && existingState.sid && existingState.phase !== "end"){ show("s-resume"); }
+    else { hostNewGame(); }
+  }catch(e){
+    err.textContent = "Could not connect. Check the username, repository, and token.";
+  }finally{
+    document.getElementById("btnConnect").disabled = false;
+  }
+}
+async function hostNewGame(){
+  sid = Date.now().toString(36) + Math.floor(Math.random()*99);
+  entryList = [];
+  await hostWrite({sid, phase:"lobby", qi:0});
+  document.getElementById("shareUrl").textContent = shareLink();
+  show("s-lobby");
+}
+function shareLink(){
+  try{ return location.origin + location.pathname; }catch(e){ return ""; }
+}
+function copyLink(){
+  const url = shareLink();
+  const b = document.getElementById("btnCopy");
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url);
+      b.textContent = "Copied!";
+      setTimeout(()=>{ b.textContent = "Copy the link"; }, 1600);
+    }
+  }catch(e){}
+}
+function hostResume(){
+  const g = existingState;
+  sid = g.sid;
+  try{ entryList = JSON.parse(lsGet("hc_rows_"+sid) || "[]"); }catch(e){ entryList = []; }
+  if(g.phase === "lobby"){ document.getElementById("shareUrl").textContent = shareLink(); show("s-lobby"); }
+  else if(g.phase === "q"){ hostShowQuestion(g.qi); }
+  else if(g.phase === "reveal"){ renderQuestionBase(g.qi); renderReveal(g); show("s-game"); setDock("next", g.qi); }
+  else if(g.phase === "collect"){ renderEntries(); show("s-collect-host"); setDock(null); }
+}
+async function hostStartGame(){ await hostGoQuestion(0); }
+async function hostGoQuestion(qi){
+  await hostWrite({sid, phase:"q", qi});
+  hostShowQuestion(qi);
+}
+function hostShowQuestion(qi){
+  renderQuestionBase(qi);
+  show("s-game");
+  setDock("reveal", qi);
+}
+async function hostReveal(){
+  const state = {sid, phase:"reveal", qi:currentQi};
+  await hostWrite(state);
+  renderReveal(state);
+  setDock("next", currentQi);
+}
+async function hostNext(){
+  if(currentQi < N-1){ await hostGoQuestion(currentQi + 1); }
+  else{
+    await hostWrite({sid, phase:"collect", qi:N-1});
+    renderEntries();
+    show("s-collect-host");
+    setDock(null);
+  }
+}
+function renderEntries(){
+  const wrap = document.getElementById("entryRows");
+  wrap.innerHTML = "";
+  entryList.forEach((p,i)=>{
+    const row = document.createElement("div");
+    row.className = "erow";
+    row.appendChild(avatarEl(p.name, 32));
+    const nm = document.createElement("span"); nm.className="en"; nm.textContent = p.name; row.appendChild(nm);
+    const sc = document.createElement("span"); sc.className="es"; sc.textContent = p.score; row.appendChild(sc);
+    const x = document.createElement("button"); x.className="ex"; x.textContent="×";
+    x.onclick = ()=>{ entryList.splice(i,1); saveEntries(); renderEntries(); };
+    row.appendChild(x);
+    wrap.appendChild(row);
+  });
+  document.getElementById("btnShowResults").disabled = entryList.length < 1;
+}
+function saveEntries(){ lsSet("hc_rows_"+sid, JSON.stringify(entryList)); }
+function addEntry(){
+  const nEl = document.getElementById("entryName"), sEl = document.getElementById("entryScore");
+  const name = nEl.value.trim(), score = parseInt(sEl.value);
+  if(!name || isNaN(score)) return;
+  entryList.push({name, score: Math.max(0, Math.min(100, score))});
+  nEl.value = ""; sEl.value = ""; nEl.focus();
+  saveEntries();
+  renderEntries();
+}
+async function hostShowResults(){
+  const rows = entryList.slice().sort((a,b)=> b.score - a.score || a.name.localeCompare(b.name));
+  await hostWrite({sid, phase:"end", qi:N-1, final:rows});
+  setDock(null);
+  renderBoard(rows);
+}
+function setDock(mode, qi){
+  const dock = document.getElementById("dock");
+  dock.innerHTML = "";
+  dock.classList.toggle("on", !!mode);
+  if(!mode) return;
+  const b = document.createElement("button");
+  if(mode === "reveal"){
+    b.className = "btn btn-primary"; b.id = "btnReveal";
+    b.textContent = "Reveal the answer";
+    b.onclick = hostReveal;
+  } else {
+    b.className = "btn btn-primary"; b.id = "btnNext";
+    b.textContent = (qi >= N-1) ? "Collect the scores" : "Next question";
+    b.onclick = hostNext;
+  }
+  dock.appendChild(b);
+}
+
+/* ================= HOST TIMER (local, host reads it out) ================= */
+let countT = null;
+function startCount(){
+  const chip = document.getElementById("countChip");
+  if(countT){ clearInterval(countT); countT = null; chip.textContent = "Start a 15 second timer"; chip.className = "countchip"; return; }
+  let left = 15;
+  chip.textContent = left + " seconds…";
+  chip.className = "countchip hot";
+  countT = setInterval(()=>{
+    left--;
+    if(left > 0){ chip.textContent = left + " seconds…"; }
+    else{
+      clearInterval(countT); countT = null;
+      chip.textContent = "Time! Reveal it.";
+      chip.className = "countchip zero";
+    }
+  }, 1000);
+}
+function resetCount(){
+  if(countT){ clearInterval(countT); countT = null; }
+  const chip = document.getElementById("countChip");
+  if(chip){ chip.textContent = "Start a 15 second timer"; chip.className = "countchip"; }
+}
+
+/* ================= PLAYER ================= */
+function playerJoin(){
+  const nmEl = document.getElementById("nameInput");
+  const nm = nmEl.value.trim();
+  const err = document.getElementById("joinErr");
+  err.textContent = "";
+  if(!nm){ nmEl.focus(); return; }
+  const d = deriveRepo();
+  if(!d){ err.textContent = "Please open the game link that the host shared."; return; }
+  gh.owner = d.owner; gh.repo = d.repo; gh.branch = d.branch;
+  role = "player";
+  document.body.classList.add("is-player");
+  me.name = nm;
+  lsSet("hc_name", nm);
+  show("s-wait");
+  document.getElementById("waitText").textContent = "Hi " + nm + "!";
+  document.getElementById("waitSub").textContent = "Looking for the game room…";
+  startLoop(playerTick);
+}
+async function playerTick(){
+  const g = await readState();
+  if(!g || !g.sid) return;
+  if(sid !== g.sid){
+    sid = g.sid; myScore = 0; lastRenderKey = "";
+    me.ans = {};
+    try{ me.ans = JSON.parse(lsGet("hc_ans_"+sid) || "{}"); }catch(e){ me.ans = {}; }
+  }
+  const key = g.phase + ":" + g.qi;
+  if(g.phase === "lobby"){
+    if(lastRenderKey !== key){
+      lastRenderKey = key;
+      show("s-wait");
+      document.getElementById("waitText").textContent = "You are in, " + me.name + "!";
+      document.getElementById("waitSub").textContent = "Wait for the host to start the game.";
+    }
+  }
+  else if(g.phase === "q"){
+    if(lastRenderKey !== key){
+      lastRenderKey = key;
+      renderQuestionBase(g.qi);
+      restoreMyPick(g.qi);
+      show("s-game");
+    }
+  }
+  else if(g.phase === "reveal"){
+    if(lastRenderKey !== key){
+      lastRenderKey = key;
+      renderQuestionBase(g.qi);
+      restoreMyPick(g.qi);
+      show("s-game");
+      renderReveal(g);
+    }
+  }
+  else if(g.phase === "collect"){
+    if(lastRenderKey !== "collect"){
+      lastRenderKey = "collect";
+      renderCollect();
+    }
+  }
+  else if(g.phase === "end"){
+    if(lastRenderKey !== "end"){
+      lastRenderKey = "end";
+      renderBoard(g.final || []);
+    }
+  }
+}
+function pickAns(c){
+  if(role !== "player" || revealedNow) return;
+  me.ans[currentQi] = c;
+  lsSet("hc_ans_"+sid, JSON.stringify(me.ans));
+  paintPick(c);
+  document.getElementById("lockline").textContent = "Locked in. You can still change it until the host reveals.";
+}
+function restoreMyPick(qi){
+  if(me.ans[qi]){ paintPick(me.ans[qi]); document.getElementById("lockline").textContent = "Locked in. You can still change it until the host reveals."; }
+}
+function paintPick(c){
+  const a = document.getElementById("optA"), b = document.getElementById("optB");
+  a.classList.toggle("picked", c==="A"); a.classList.toggle("faded", c!=="A");
+  b.classList.toggle("picked", c==="B"); b.classList.toggle("faded", c!=="B");
+}
+function renderCollect(){
+  myScore = 0;
+  for(let i=0;i<N;i++){ if(me.ans[i]===Q[i].correct) myScore += 10; }
+  const el = document.getElementById("finalScore");
+  el.textContent = "0";
+  show("s-collect");
+  animateNum(el, myScore, 1100);
+  const dots = document.getElementById("scDots");
+  dots.innerHTML = "";
+  for(let i=0;i<N;i++){
+    const d = document.createElement("div");
+    const won = me.ans[i]===Q[i].correct;
+    d.className = "dot " + (won ? "w" : "l");
+    d.style.animationDelay = (i*0.07)+"s";
+    d.textContent = i+1;
+    dots.appendChild(d);
+  }
+}
+
+/* ================= SHARED RENDER ================= */
+let currentQi = 0;
+let revealedNow = false;
+function renderQuestionBase(qi){
+  currentQi = qi; revealedNow = false;
+  const item = Q[qi];
+  document.getElementById("qLabel").textContent = "Question " + (qi+1) + " of " + N;
+  document.getElementById("qChip").textContent = item.chip;
+  document.getElementById("progressfill").style.width = ((qi)/N*100) + "%";
+  document.getElementById("qMeta").textContent = "You are in the room. What is your call?";
+  document.getElementById("qText").textContent = item.text;
+  document.getElementById("optAText").textContent = item.A;
+  document.getElementById("optBText").textContent = item.B;
+  ["optA","optB"].forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.remove("picked","faded","correct","wrongpick");
+    el.disabled = (role === "host");
+  });
+  document.getElementById("lockline").textContent = (role==="player") ? "Tap A or B to lock your call." : "Read the question out loud, then give them 15 seconds.";
+  document.getElementById("reveal").classList.remove("show");
+  document.getElementById("resultBadge").className = "resultbadge";
+  resetCount();
+}
+function renderReveal(g){
+  revealedNow = true;
+  const qi = g.qi, item = Q[qi];
+  currentQi = qi;
+  document.getElementById("progressfill").style.width = ((qi+1)/N*100) + "%";
+  const A = document.getElementById("optA"), B = document.getElementById("optB");
+  A.disabled = true; B.disabled = true;
+  (item.correct === "A" ? A : B).classList.add("correct");
+  (item.correct === "A" ? A : B).classList.remove("faded");
+  if(role === "player" && me.ans[qi] && me.ans[qi] !== item.correct){
+    (me.ans[qi] === "A" ? A : B).classList.add("wrongpick");
+  }
+  document.getElementById("correctPill").textContent = "The correct answer: " + item.correct;
+  document.getElementById("rCompany").textContent = item.company;
+  document.getElementById("rDid").textContent = "What they did: " + item.did;
+  document.getElementById("rHappened").textContent = "What happened: " + item.happened;
+  document.getElementById("rFact").textContent = item.fact;
+  document.getElementById("rLesson").textContent = item.lesson;
+  if(role === "player"){
+    const badge = document.getElementById("resultBadge");
+    const mine = me.ans[qi];
+    const won = mine === item.correct;
+    badge.textContent = won ? "+10 · You called it!" : (mine ? "+0 · History disagrees" : "+0 · No answer");
+    badge.className = "resultbadge " + (won ? "good" : "bad");
+    myScore = 0;
+    for(let i=0;i<N;i++){ if(me.ans[i]===Q[i].correct) myScore += 10; }
+    animateNum(document.getElementById("scoreNum"), myScore, 800);
+  }
+  document.getElementById("reveal").classList.add("show");
+  document.getElementById("lockline").textContent = "";
+  resetCount();
+}
+
+/* ================= LEADERBOARD ================= */
+function renderBoard(rows){
+  show("s-board");
+  const list = document.getElementById("lbList");
+  list.innerHTML = "";
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  rows.forEach((p,i)=>{
+    const row = document.createElement("div");
+    row.className = "lb-row" + (i===0 ? " first" : "");
+    const rk = document.createElement("div"); rk.className="lb-rank"; rk.textContent = i+1;
+    const av = avatarEl(p.name, 36);
+    const nm = document.createElement("div"); nm.className="lb-name"; nm.textContent = p.name;
+    if(i===0){ const t=document.createElement("span"); t.className="wintag"; t.textContent="WINNER"; nm.appendChild(t); }
+    const sc = document.createElement("div"); sc.className="lb-score"; sc.textContent = "0";
+    row.appendChild(rk); row.appendChild(av); row.appendChild(nm); row.appendChild(sc);
+    list.appendChild(row);
+    const order = rows.length - 1 - i;   // reveal last place first, winner last
+    const delay = reduced || window.__TEST_POLL__ ? 0 : order*650 + (i===0 ? 900 : 0);
+    setTimeout(()=>{
+      row.classList.add("in");
+      animateNum(sc, p.score, 900);
+      if(i===0){ launchConfetti(); }
+    }, delay);
+  });
+}
+function showLessons(){
+  const list = document.getElementById("lessonList");
+  list.innerHTML = "";
+  Q.forEach((item,i)=>{
+    const r = document.createElement("div");
+    r.className = "lrow";
+    r.style.animationDelay = (i*0.06)+"s";
+    r.innerHTML = '<div class="ln">Lesson '+(i+1)+'</div><div class="lt">'+item.lesson+'</div><div class="lc">'+item.company+'</div>';
+    list.appendChild(r);
+  });
+  show("s-lessons");
+}
+
+/* ================= CONFETTI ================= */
+function launchConfetti(){
+  if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.getElementById("confetti");
+  const cx = cv.getContext ? cv.getContext("2d") : null;
+  if(!cx || !window.requestAnimationFrame) return;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const colors = ["#0A84FF","#BF5AF2","#FF375F","#FF9F0A","#30D158","#FFD60A","#F5F5F7"];
+  const P = Array.from({length:170},()=>({
+    x:Math.random()*cv.width, y:-30-Math.random()*cv.height*0.4,
+    w:5+Math.random()*6, h:8+Math.random()*9,
+    vy:2.2+Math.random()*3.4, vx:(Math.random()-.5)*2.4,
+    rot:Math.random()*Math.PI, vr:(Math.random()-.5)*.24,
+    c:colors[(Math.random()*colors.length)|0]
+  }));
+  const t0 = performance.now();
+  (function frame(now){
+    cx.clearRect(0,0,cv.width,cv.height);
+    P.forEach(p=>{ p.y+=p.vy; p.x+=p.vx; p.rot+=p.vr;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot);
+      cx.fillStyle=p.c; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore(); });
+    if(now-t0<5200) requestAnimationFrame(frame); else cx.clearRect(0,0,cv.width,cv.height);
+  })(t0);
+}
+
+/* ================= LOOP ================= */
+function startLoop(fn){
+  stopLoop();
+  fn();
+  loopTimer = setInterval(fn, POLL);
+}
+function stopLoop(){ if(loopTimer){ clearInterval(loopTimer); loopTimer = null; } }
+
+/* restore remembered name for players */
+(function(){
+  const saved = lsGet("hc_name");
+  if(saved){ const el = document.getElementById("nameInput"); if(el) el.value = saved; }
+})();
+</script>
+<div class="dock" id="dock"></div>
+</body>
+</html>
