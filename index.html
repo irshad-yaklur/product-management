@@ -42,10 +42,12 @@ body{
 }
 body::after{
   content:"";position:fixed;inset:0;z-index:3;pointer-events:none;
-  background:repeating-linear-gradient(0deg,rgba(0,0,10,.09) 0 2px,transparent 2px 4px);
+  background:repeating-linear-gradient(0deg,rgba(0,0,10,.08) 0 2px,transparent 2px 4px);
 }
 
-/* ============ MIAMI DUSK BACKGROUND ============ */
+/* ==================================================================
+   MIAMI DUSK · living cityscape
+   ================================================================== */
 .miami{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .stars{
   position:absolute;inset:0 0 55% 0;
@@ -63,6 +65,26 @@ body::after{
   animation:twinkle 4s ease-in-out infinite alternate;
 }
 @keyframes twinkle{to{opacity:.55}}
+.shoot{
+  position:absolute;top:11%;left:-8%;width:90px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(255,255,255,.95),transparent);
+  transform:rotate(16deg);opacity:0;
+  animation:shootk 13s linear infinite;
+}
+@keyframes shootk{0%,86%{opacity:0;transform:rotate(16deg) translateX(0)}88%{opacity:1}100%{opacity:0;transform:rotate(16deg) translateX(1500px)}}
+.heli{position:absolute;top:7%;left:-5%;animation:flyk 28s linear infinite}
+@keyframes flyk{to{transform:translateX(115vw)}}
+.heli i{position:absolute;border-radius:50%}
+.heli .hr{width:5px;height:5px;background:#FF3B5C;animation:blinkd 1s steps(2) infinite}
+.heli .hw{width:3px;height:3px;background:#fff;left:12px;top:2px;opacity:.8}
+@keyframes blinkd{50%{opacity:.1}}
+.cloudp{
+  position:absolute;width:44vw;height:13vh;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(255,110,160,.26),transparent 70%);
+}
+.cloudp.a{top:15%;left:6%;animation:driftc 70s ease-in-out infinite alternate}
+.cloudp.b{top:25%;right:2%;background:radial-gradient(ellipse at center,rgba(140,90,255,.24),transparent 70%);animation:driftc 90s ease-in-out infinite alternate-reverse}
+@keyframes driftc{to{transform:translateX(60px)}}
 .sun{
   position:absolute;left:50%;bottom:33vh;transform:translateX(-50%);
   width:min(52vw,330px);aspect-ratio:1;border-radius:50%;
@@ -71,26 +93,88 @@ body::after{
   -webkit-mask-image:linear-gradient(#000 0 55%,transparent 0),repeating-linear-gradient(to bottom,#000 0 12px,transparent 12px 19px);
   filter:drop-shadow(0 0 34px rgba(255,80,120,.7));
 }
+.skyfar{
+  position:absolute;left:0;right:0;bottom:34vh;height:120px;opacity:.8;
+  background-repeat:repeat-x;background-position:bottom;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='120'%3E%3Cg fill='%231C0742'%3E%3Crect x='0' y='58' width='34' height='62'/%3E%3Crect x='40' y='34' width='26' height='86'/%3E%3Crect x='72' y='70' width='40' height='50'/%3E%3Crect x='118' y='22' width='22' height='98'/%3E%3Crect x='146' y='54' width='30' height='66'/%3E%3Crect x='182' y='80' width='44' height='40'/%3E%3Crect x='232' y='40' width='24' height='80'/%3E%3Crect x='262' y='64' width='34' height='56'/%3E%3Crect x='302' y='28' width='20' height='92'/%3E%3Crect x='328' y='58' width='30' height='62'/%3E%3Crect x='364' y='44' width='22' height='76'/%3E%3Crect x='392' y='72' width='28' height='48'/%3E%3C/g%3E%3C/svg%3E");
+}
+.cluster{position:absolute;bottom:34vh;width:min(34vw,300px)}
+.cluster svg{width:100%;height:auto;display:block}
+.cluster.left{left:0}
+.cluster.right{right:0}
+@media(max-width:520px){.cluster.right{display:none}.cluster{width:44vw}}
+.win{animation:flick 5s steps(1) infinite}
+.win.f2{animation-duration:7s;animation-delay:1.2s}
+.win.f3{animation-duration:9s;animation-delay:2.6s}
+@keyframes flick{0%,91%{opacity:.95}92%,95%{opacity:.12}96%,100%{opacity:.95}}
+.neonSign{animation:signk 6s ease-in-out infinite}
+@keyframes signk{0%,100%{opacity:1}47%{opacity:1}50%{opacity:.15}53%{opacity:1}76%{opacity:.55}}
+.beam{
+  position:absolute;bottom:33vh;width:150px;height:58vh;opacity:.5;
+  background:linear-gradient(to top,rgba(255,255,255,.12),transparent 72%);
+  clip-path:polygon(44% 100%,56% 100%,78% 0,22% 0);
+  transform-origin:50% 100%;
+}
+.beam.b1{left:20%;animation:sweep 9s ease-in-out infinite alternate}
+.beam.b2{right:20%;animation:sweep 11s ease-in-out infinite alternate-reverse}
+@keyframes sweep{from{transform:rotate(-13deg)}to{transform:rotate(13deg)}}
 .horizon{
   position:absolute;left:0;right:0;bottom:34vh;height:3px;
   background:linear-gradient(90deg,transparent,var(--cyan),transparent);
   box-shadow:0 0 22px var(--cyan),0 0 60px rgba(41,230,255,.5);
 }
-.grid{
-  position:absolute;left:-60%;right:-60%;bottom:-8vh;height:42vh;
-  transform:perspective(260px) rotateX(63deg);transform-origin:top center;
-  background-color:#12012E;
-  background-image:
-    repeating-linear-gradient(90deg,rgba(41,230,255,.55) 0 2px,transparent 2px 64px),
-    repeating-linear-gradient(0deg,rgba(255,46,136,.55) 0 2px,transparent 2px 48px);
-  animation:gridmove 2.6s linear infinite;
-  will-change:background-position;
+.ocean{
+  position:absolute;left:0;right:0;bottom:0;height:34vh;
+  background:linear-gradient(180deg,#3A0F5E 0%,#1B0640 45%,#0C021F 100%);
 }
-@keyframes gridmove{to{background-position:0 0,0 48px}}
-.palm{position:absolute;bottom:31vh;width:min(34vw,230px);opacity:.95}
+.glitter{
+  position:absolute;left:50%;transform:translateX(-50%);top:0;bottom:0;width:min(40vw,250px);
+  background:repeating-linear-gradient(0deg,rgba(255,150,100,.30) 0 3px,transparent 3px 15px);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.95),transparent 82%);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.95),transparent 82%);
+  animation:glitk 2.8s linear infinite;
+}
+@keyframes glitk{to{background-position:0 15px}}
+.wv{
+  position:absolute;left:-140px;right:-140px;height:2px;opacity:.5;
+  background:repeating-linear-gradient(90deg,rgba(150,110,230,.5) 0 70px,transparent 70px 160px);
+}
+.wv.w1{top:26%;animation:wavek 8s linear infinite}
+.wv.w2{top:56%;opacity:.35;animation:wavek 11s linear infinite reverse}
+@keyframes wavek{to{transform:translateX(160px)}}
+.prom{
+  position:absolute;left:0;right:0;bottom:0;height:52px;
+  background:linear-gradient(180deg,#0E0322,#070113);
+  border-top:2px solid rgba(41,230,255,.35);
+  box-shadow:0 -8px 26px rgba(41,230,255,.10);
+}
+.car{position:absolute;bottom:8px;left:-260px;width:180px;animation:drivek 17s linear infinite}
+@keyframes drivek{0%{transform:translateX(0)}46%{transform:translateX(calc(100vw + 480px))}100%{transform:translateX(calc(100vw + 480px))}}
+.car svg{width:100%;height:auto;display:block}
+.palm{position:absolute;bottom:40px;width:min(32vw,220px)}
 .palm.p1{left:-2%}
 .palm.p2{right:-3%;transform:scaleX(-1)}
-.palm svg{width:100%;height:auto;display:block}
+.palm svg{width:100%;height:auto;display:block;transform-origin:50% 100%;animation:sway 6s ease-in-out infinite alternate}
+.palm.p2 svg{animation-delay:1.6s}
+@keyframes sway{from{transform:rotate(-1.3deg)}to{transform:rotate(1.3deg)}}
+.flam{position:absolute;right:15%;bottom:48px;width:52px;animation:flamk 3s ease-in-out infinite alternate}
+@keyframes flamk{to{transform:translateY(-3px)}}
+@media(max-width:520px){.flam{right:6%}}
+
+/* ============ VERSION STAMP + NOTICE ============ */
+.vstamp{
+  position:fixed;right:10px;bottom:8px;z-index:4;
+  font-family:var(--disp);font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.5);
+  text-shadow:0 0 8px rgba(41,230,255,.5);pointer-events:none;
+}
+.vernote{
+  position:fixed;left:50%;bottom:64px;transform:translateX(-50%) translateY(200%);z-index:70;
+  background:rgba(90,50,4,.95);border:2px solid var(--gold);color:#FFE9B8;
+  border-radius:14px;padding:12px 18px;font-weight:600;font-size:14px;max-width:min(92vw,440px);text-align:center;
+  box-shadow:0 0 24px rgba(255,209,102,.45);
+  transition:transform .4s var(--spring);
+}
+.vernote.show{transform:translateX(-50%) translateY(0)}
 
 /* ============ LAYOUT ============ */
 .screen{display:none;min-height:100vh;min-height:100dvh;position:relative;z-index:1;flex-direction:column;align-items:center;padding:22px 18px 150px}
@@ -226,57 +310,10 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 .is-host .scorepill{display:none}
 
 /* ============ PROGRESS ============ */
-.progresswrap{width:100%;max-width:620px;margin:6px 0 14px}
+.progresswrap{width:100%;max-width:620px;margin:6px 0 20px}
 .progresslabel{display:flex;justify-content:space-between;font-family:var(--disp);font-size:10.5px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
 .progressbar{height:8px;border-radius:99px;background:rgba(10,0,30,.6);border:1px solid var(--line);overflow:hidden}
 .progressfill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--orange));box-shadow:0 0 14px rgba(255,46,136,.8);transition:width .6s var(--ease)}
-
-/* ============ CHARACTER STAGE ============ */
-.charStage{
-  width:100%;max-width:620px;height:130px;margin:0 0 14px;
-  overflow:hidden;position:relative;
-}
-.charStage svg{width:100%;height:100%;display:block}
-.charStage .inner *,.charStage g{transform-box:fill-box}
-.bob{animation:bobk .7s ease-in-out infinite alternate}
-@keyframes bobk{to{transform:translateY(-3px)}}
-.legA{transform-origin:50% 0;animation:swing .7s ease-in-out infinite alternate}
-.legB{transform-origin:50% 0;animation:swing .7s ease-in-out infinite alternate-reverse}
-@keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
-.swingA{transform-origin:50% 0;animation:armsw .7s ease-in-out infinite alternate-reverse}
-.swingB{transform-origin:50% 0;animation:armsw .7s ease-in-out infinite alternate}
-@keyframes armsw{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
-.holdUp{transform-origin:50% 0;transform:rotate(-125deg)}
-.holdMid{transform-origin:50% 0;transform:rotate(-60deg)}
-.knockArm{transform-origin:50% 0;animation:knockk 1.2s ease-in-out infinite}
-@keyframes knockk{0%,55%,100%{transform:rotate(-40deg)}15%,35%{transform:rotate(-78deg)}}
-.cheerArm{transform-origin:50% 0;animation:cheerk 1.8s ease-in-out infinite}
-@keyframes cheerk{0%,100%{transform:rotate(-60deg)}50%{transform:rotate(-125deg)}}
-.pointArm{transform-origin:50% 0;animation:pointk 1.6s ease-in-out infinite}
-@keyframes pointk{0%,100%{transform:rotate(-70deg)}50%{transform:rotate(-84deg)}}
-.shakeHead{animation:shakek 1.6s ease-in-out infinite}
-@keyframes shakek{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
-.strollR{animation:strollRk 12s linear infinite}
-@keyframes strollRk{from{transform:translateX(-90px)}to{transform:translateX(880px)}}
-.strollL{animation:strollLk 13s linear infinite}
-@keyframes strollLk{from{transform:translateX(880px)}to{transform:translateX(-90px)}}
-.flashy{animation:flashk 2.6s ease-out infinite}
-@keyframes flashk{0%,86%{opacity:0}90%{opacity:1}100%{opacity:0}}
-.bigflashy{animation:flashk 3.2s ease-out infinite}
-.knockstar{animation:knockstark 1.2s ease-out infinite}
-@keyframes knockstark{0%,55%,100%{opacity:0;transform:scale(.4)}18%{opacity:1;transform:scale(1)}30%{opacity:0}}
-.steam{animation:steamk 2.2s ease-in-out infinite}
-@keyframes steamk{0%{opacity:0;transform:translateY(4px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-14px)}}
-.floaty{animation:floatk 2.4s ease-in-out infinite alternate}
-@keyframes floatk{to{transform:translateY(-10px)}}
-.juggler{transform-origin:center;animation:jugglek 1.6s linear infinite}
-@keyframes jugglek{to{transform:rotate(360deg)}}
-.hurry .legA{animation-duration:.4s}
-.hurry .legB{animation-duration:.4s}
-.hurry.strollR{animation-duration:7.5s}
-.tiltcans{animation:tiltk 2.4s ease-in-out infinite}
-@keyframes tiltk{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
-.playtri{animation:flashk 2s ease-out infinite}
 
 /* ============ QUESTION ============ */
 .qmeta{font-family:var(--disp);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan);text-shadow:0 0 10px rgba(41,230,255,.7);margin-bottom:12px;text-align:center}
@@ -475,13 +512,102 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <body>
 <div class="miami">
   <div class="stars"></div>
+  <div class="shoot"></div>
+  <div class="heli"><i class="hr"></i><i class="hw"></i></div>
+  <div class="cloudp a"></div>
+  <div class="cloudp b"></div>
   <div class="sun"></div>
+  <div class="skyfar"></div>
+  <div class="cluster left"><svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#10032A">
+      <rect x="14" y="56" width="74" height="134"/>
+      <rect x="30" y="30" width="42" height="30"/>
+      <rect x="47" y="8" width="8" height="24"/>
+      <rect x="104" y="92" width="56" height="98"/>
+      <rect x="176" y="44" width="48" height="146"/>
+      <rect x="196" y="20" width="8" height="26"/>
+      <rect x="238" y="110" width="52" height="80"/>
+    </g>
+    <g fill="#FFD166">
+      <rect class="win" x="24" y="70" width="6" height="8"/><rect class="win f2" x="40" y="70" width="6" height="8"/><rect class="win f3" x="56" y="70" width="6" height="8"/><rect class="win" x="72" y="70" width="6" height="8"/>
+      <rect class="win f3" x="24" y="96" width="6" height="8"/><rect class="win" x="56" y="96" width="6" height="8"/>
+      <rect class="win f2" x="40" y="122" width="6" height="8"/><rect class="win" x="72" y="122" width="6" height="8"/>
+      <rect class="win" x="114" y="106" width="6" height="8"/><rect class="win f3" x="132" y="106" width="6" height="8"/>
+      <rect class="win f2" x="114" y="132" width="6" height="8"/><rect class="win" x="146" y="132" width="6" height="8"/>
+    </g>
+    <g fill="#8CF3FF">
+      <rect class="win f2" x="186" y="60" width="6" height="8"/><rect class="win" x="202" y="60" width="6" height="8"/>
+      <rect class="win" x="186" y="88" width="6" height="8"/><rect class="win f3" x="212" y="88" width="6" height="8"/>
+      <rect class="win f3" x="202" y="116" width="6" height="8"/>
+      <rect class="win" x="248" y="124" width="6" height="8"/><rect class="win f2" x="266" y="124" width="6" height="8"/>
+    </g>
+    <circle class="neonSign" cx="51" cy="45" r="9" fill="none" stroke="#FF2E88" stroke-width="3"/>
+  </svg></div>
+  <div class="cluster right"><svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#10032A">
+      <rect x="10" y="104" width="52" height="86"/>
+      <rect x="76" y="38" width="52" height="152"/>
+      <rect x="96" y="14" width="10" height="26"/>
+      <rect x="142" y="86" width="60" height="104"/>
+      <rect x="216" y="52" width="72" height="138"/>
+      <rect x="236" y="28" width="34" height="26"/>
+    </g>
+    <g fill="#FFD166">
+      <rect class="win f2" x="20" y="118" width="6" height="8"/><rect class="win" x="40" y="118" width="6" height="8"/>
+      <rect class="win" x="86" y="54" width="6" height="8"/><rect class="win f3" x="104" y="54" width="6" height="8"/>
+      <rect class="win f2" x="86" y="82" width="6" height="8"/><rect class="win" x="112" y="110" width="6" height="8"/>
+      <rect class="win" x="152" y="100" width="6" height="8"/><rect class="win f2" x="176" y="100" width="6" height="8"/>
+      <rect class="win f3" x="152" y="128" width="6" height="8"/>
+    </g>
+    <g fill="#8CF3FF">
+      <rect class="win" x="228" y="66" width="6" height="8"/><rect class="win f3" x="248" y="66" width="6" height="8"/><rect class="win f2" x="268" y="66" width="6" height="8"/>
+      <rect class="win f2" x="228" y="96" width="6" height="8"/><rect class="win" x="258" y="96" width="6" height="8"/>
+      <rect class="win" x="240" y="126" width="6" height="8"/>
+    </g>
+    <path class="neonSign" d="M154 66 l14 -22 14 22 z" fill="none" stroke="#29E6FF" stroke-width="3" style="animation-delay:2.2s"/>
+  </svg></div>
+  <div class="beam b1"></div>
+  <div class="beam b2"></div>
   <div class="horizon"></div>
-  <div class="grid"></div>
+  <div class="ocean">
+    <div class="glitter"></div>
+    <div class="wv w1"></div>
+    <div class="wv w2"></div>
+  </div>
+  <div class="prom"></div>
+  <div class="car"><svg viewBox="0 0 240 52" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="carg" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#FF2E88"/><stop offset="1" stop-color="#B44CFF"/>
+      </linearGradient>
+      <linearGradient id="hlg" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#FFF3C0" stop-opacity=".5"/><stop offset="1" stop-color="#FFF3C0" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="160,26 240,14 240,46 160,40" fill="url(#hlg)"/>
+    <path d="M8 36 L20 20 C42 9 96 7 122 15 L150 27 L158 35 Q160 43 150 45 L18 45 Q8 43 8 36 Z" fill="url(#carg)"/>
+    <path d="M46 18 C64 12 92 11 112 16 L118 24 L52 24 Z" fill="#8CF3FF" opacity=".85"/>
+    <rect x="8" y="30" width="7" height="6" rx="2" fill="#FF3B5C"/>
+    <circle cx="42" cy="45" r="8.5" fill="#0B0B14"/><circle cx="42" cy="45" r="3" fill="#777"/>
+    <circle cx="128" cy="45" r="8.5" fill="#0B0B14"/><circle cx="128" cy="45" r="3" fill="#777"/>
+  </svg></div>
   <div class="palm p1"><svg viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg"><g fill="#0D0022"><path d="M104 258c4-70 2-120 14-168l10 2c-16 50-12 96-12 166z"/><path d="M118 92c-30-26-64-30-92-18 34-2 62 10 84 30z"/><path d="M120 90c-38-8-72 6-88 28 30-14 58-16 84-12z"/><path d="M122 88c-8-38 6-66 28-80-10 28-12 54-8 78z"/><path d="M124 90c10-34 36-52 64-54-24 12-42 32-50 58z"/><path d="M124 94c26-18 56-18 78-4-26-4-50 2-70 16z"/><path d="M122 96c30 2 54 18 64 40-22-18-44-26-66-28z"/></g></svg></div>
   <div class="palm p2"><svg viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg"><g fill="#0D0022"><path d="M104 258c4-70 2-120 14-168l10 2c-16 50-12 96-12 166z"/><path d="M118 92c-30-26-64-30-92-18 34-2 62 10 84 30z"/><path d="M120 90c-38-8-72 6-88 28 30-14 58-16 84-12z"/><path d="M122 88c-8-38 6-66 28-80-10 28-12 54-8 78z"/><path d="M124 90c10-34 36-52 64-54-24 12-42 32-50 58z"/><path d="M124 94c26-18 56-18 78-4-26-4-50 2-70 16z"/><path d="M122 96c30 2 54 18 64 40-22-18-44-26-66-28z"/></g></svg></div>
+  <div class="flam"><svg viewBox="0 0 52 84" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#FF6AB2">
+      <ellipse cx="22" cy="42" rx="16" ry="11"/>
+      <path d="M34 38 C44 30 44 16 34 10 L30 12 C38 18 38 28 30 36 Z"/>
+      <circle cx="33" cy="9" r="5.4"/>
+    </g>
+    <path d="M37 10 l9 3 -9 3 z" fill="#1A0533"/>
+    <rect x="20" y="52" width="2.6" height="26" rx="1.3" fill="#FF6AB2"/>
+    <rect x="26" y="52" width="2.6" height="12" rx="1.3" fill="#E6519B"/>
+    <rect x="16" y="77" width="10" height="3" rx="1.5" fill="#FF6AB2"/>
+  </svg></div>
 </div>
 <div class="synctoast" id="synctoast"></div>
+<div class="vernote" id="verNote">The game was updated. Please close this tab and open the link from the Teams chat again.</div>
+<div class="vstamp">V6</div>
 
 <!-- ============ WELCOME ============ -->
 <section class="screen active" id="s-welcome">
@@ -572,7 +698,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
       <button class="btn btn-glass btn-wide" id="btnCopy" onclick="copyLink()">Copy the link</button>
       <button class="btn btn-primary btn-wide" id="btnStart" onclick="hostStartGame()">Start the game</button>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Everyone opens the link and taps “Join the game”.<br>Ask for a quick thumbs-up in Teams when they are in.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V6 in the bottom corner.</p>
   </div>
 </section>
 
@@ -588,7 +714,6 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <div class="progresslabel"><span id="qLabel">Question 1 of 10</span><span id="qChip"></span></div>
     <div class="progressbar"><div class="progressfill" id="progressfill"></div></div>
   </div>
-  <div class="charStage" id="charStage"></div>
   <div class="col">
     <div class="qmeta" id="qMeta"></div>
     <div class="qtext" id="qText"></div>
@@ -653,8 +778,8 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     </div>
     <div class="welcome-btns" style="margin-top:26px">
       <button class="btn btn-primary btn-wide" id="btnShowResults" onclick="hostShowResults()" disabled>Show the final results</button>
-      <button class="btn btn-ghost" onclick="hostBackToLast()">Back to the last question</button>
-      <button class="btn btn-ghost" onclick="hostRestart()">Restart the game</button>
+      <button class="btn btn-ghost" id="btnBackLast" onclick="hostBackToLast()">Back to the last question</button>
+      <button class="btn btn-ghost" id="btnRestart2" onclick="hostRestart()">Restart the game</button>
     </div>
   </div>
 </section>
@@ -667,7 +792,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
     <div class="lb" id="lbList"></div>
     <div class="welcome-btns" style="margin-top:30px">
       <button class="btn btn-primary btn-wide" onclick="showLessons()">See all 10 lessons</button>
-      <button class="btn btn-ghost hostonly" onclick="hostRestart()">Play again · new game</button>
+      <button class="btn btn-ghost hostonly" id="btnPlayAgain" onclick="hostRestart()">Play again · new game</button>
     </div>
   </div>
 </section>
@@ -703,6 +828,8 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    5. Press "Copy the link" in the lobby and paste it in Teams.
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
+
+const BUILD = "6";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -797,81 +924,6 @@ const Q = [
   lesson:"A failed project can hide your next big product."}
 ];
 const N = Q.length;
-
-/* ================= STREET SCENES (original 80s Miami people) ================= */
-function person(o){
-  const flip = o.flip ? ' scale(-1,1)' : '';
-  const legA = o.stand ? '' : ' legA';
-  const legB = o.stand ? '' : ' legB';
-  const back = o.back || 'swingB';
-  const front = o.front || 'swingA';
-  const headCls = o.head || '';
-  return '<g transform="translate('+o.x+',150)"><g class="inner bob" transform="scale(1,1)'+flip+'">'
-   +'<g class="pl'+legA+'"><rect x="-11" y="-36" width="9" height="34" rx="3" fill="'+o.pants+'"/><rect x="-14" y="-5" width="15" height="6" rx="2" fill="#14101E"/></g>'
-   +'<g class="pl'+legB+'"><rect x="2" y="-36" width="9" height="34" rx="3" fill="'+o.pants+'"/><rect x="0" y="-5" width="15" height="6" rx="2" fill="#14101E"/></g>'
-   +'<rect x="-14" y="-80" width="28" height="46" rx="7" fill="'+o.shirt+'"/>'
-   +'<g class="arm '+back+'" transform="translate(-10,-74)"><rect x="-3.5" y="0" width="7" height="30" rx="3" fill="'+o.shirt+'"/><circle cx="0" cy="32" r="5" fill="'+o.skin+'"/></g>'
-   +'<g class="arm '+front+'" transform="translate(10,-74)"><rect x="-3.5" y="0" width="7" height="30" rx="3" fill="'+o.shirt+'"/><circle cx="0" cy="32" r="5" fill="'+o.skin+'"/>'+(o.prop||'')+'</g>'
-   +'<g class="'+headCls+'"><circle cx="0" cy="-94" r="13" fill="'+o.skin+'"/>'
-   +'<path d="M-13 -96 Q0 -112 13 -96 L13 -102 Q0 -116 -13 -102 Z" fill="'+o.hair+'"/>'
-   +'<rect x="-11" y="-97" width="22" height="6" rx="2" fill="#10131C"/></g>'
-   +'</g></g>';
-}
-const PROPS = {
-  tapes:'<g transform="translate(-2,26)"><rect x="-13" y="-6" width="26" height="9" rx="2" fill="#1B1B26"/><rect x="-13" y="-16" width="26" height="9" rx="2" fill="#2A2A3A"/><rect x="-13" y="-26" width="26" height="9" rx="2" fill="#1B1B26"/><circle cx="-6" cy="-1.5" r="2" fill="#555"/><circle cx="6" cy="-1.5" r="2" fill="#555"/></g>',
-  camera:'<g transform="translate(2,26)"><rect x="-11" y="-8" width="24" height="16" rx="3" fill="#20222E"/><circle cx="1" cy="0" r="5.5" fill="#29E6FF"/><circle class="flashy" cx="14" cy="-10" r="9" fill="#FFFFFF"/></g>',
-  cup:'<g transform="translate(0,26)"><rect x="-6" y="-10" width="13" height="15" rx="2" fill="#FFF6EE"/><rect x="-6" y="-10" width="13" height="4" fill="#7A4A2E"/><path class="steam" d="M0 -14 q3 -4 0 -8" stroke="#FFF" stroke-width="2" fill="none" stroke-linecap="round"/></g>',
-  can:'<rect transform="translate(-4,24)" x="0" y="-8" width="9" height="14" rx="2" fill="#E23A3A"/>',
-  can2:'<rect transform="translate(-4,24)" x="0" y="-8" width="9" height="14" rx="2" fill="#C9CCD6"/>',
-  boxes:'<g transform="translate(-2,24)"><rect x="-12" y="-8" width="25" height="14" rx="2" fill="#C77B3F"/><rect x="-12" y="-22" width="25" height="12" rx="2" fill="#B06A32"/><rect x="-1" y="-22" width="3" height="28" fill="#F2E3C8"/></g>',
-  oldcam:'<g transform="translate(2,24)"><rect x="-10" y="-9" width="22" height="15" rx="2" fill="#3A2E22"/><circle cx="1" cy="-1" r="5" fill="#111"/><circle class="bigflashy" cx="14" cy="-14" r="12" fill="#FFF"/></g>',
-  bubble:'<g class="floaty" transform="translate(0,18)"><rect x="-13" y="-24" width="27" height="17" rx="6" fill="#3DFFB4"/><circle cx="-6" cy="-15" r="1.8" fill="#0C4C34"/><circle cx="0" cy="-15" r="1.8" fill="#0C4C34"/><circle cx="6" cy="-15" r="1.8" fill="#0C4C34"/></g>',
-  phone:'<rect transform="translate(-3,24)" x="0" y="-10" width="8" height="15" rx="2" fill="#161A26"/>'
-};
-const C1={skin:'#E8B48C',hair:'#2A1B12'}, C2={skin:'#8C5A3C',hair:'#14100C'}, C3={skin:'#C98E66',hair:'#3A2A18'};
-function scene(inner){ return '<svg viewBox="0 0 800 170" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg"><g>'+inner+'</g></svg>'; }
-const SCENES = [
- // 1 Blockbuster: a walker hauls a tower of tapes past a doubter
- ()=>scene('<g class="strollR">'+person({x:0,shirt:'#FF6AB2',pants:'#2E2E4E',...C1,front:'holdMid',prop:PROPS.tapes})+'</g>'
-   +person({x:640,shirt:'#29E6FF',pants:'#22223A',...C2,stand:true,front:'holdMid',prop:PROPS.tapes,head:'shakeHead',flip:true})),
- // 2 Instagram: photographer flashes a dancing poser
- ()=>scene(person({x:250,shirt:'#B44CFF',pants:'#1E1E36',...C3,stand:true,front:'holdUp',prop:PROPS.camera})
-   +person({x:520,shirt:'#FFD166',pants:'#B03A6A',...C1,stand:true,front:'cheerArm',back:'holdMid',flip:true,head:'shakeHead'})),
- // 3 Airbnb: knocking on a tall door, friend waits with a camera
- ()=>scene('<rect x="560" y="30" width="52" height="120" rx="4" fill="#7A2E8F"/><circle cx="572" cy="95" r="4" fill="#FFD166"/>'
-   +'<path class="knockstar" d="M552 60 l6 -3 -2 6 6 2 -7 2 2 6 -6 -4 -5 4 2 -6 -6 -2 7 -2 -2 -6 z" fill="#FFF"/>'
-   +person({x:505,shirt:'#FF8C42',pants:'#2A2A44',...C2,stand:true,front:'knockArm'})
-   +person({x:340,shirt:'#29E6FF',pants:'#20203A',...C1,stand:true,front:'holdMid',prop:PROPS.camera})),
- // 4 Dropbox: one films a demo at a desk, one points at the play button
- ()=>scene('<rect x="330" y="118" width="120" height="10" rx="3" fill="#2A1050"/><rect x="352" y="86" width="60" height="34" rx="4" fill="#20222E"/><path class="playtri" d="M374 96 l18 7 -18 7 z" fill="#3DFFB4"/>'
-   +person({x:300,shirt:'#FF2E88',pants:'#22223C',...C3,stand:true,front:'holdMid',prop:PROPS.phone})
-   +person({x:520,shirt:'#FFD166',pants:'#2E2E4E',...C2,stand:true,flip:true,front:'pointArm'})),
- // 5 Starbucks: coffee cheers, steam rising
- ()=>scene(person({x:330,shirt:'#2E7D5B',pants:'#1E1E36',...C1,stand:true,front:'cheerArm',prop:PROPS.cup})
-   +person({x:470,shirt:'#FF6AB2',pants:'#26264A',...C2,stand:true,flip:true,front:'cheerArm',prop:PROPS.cup})),
- // 6 Prime: a hurrying courier with boxes, a watcher checks the time
- ()=>scene('<g class="strollR hurry">'+person({x:0,shirt:'#FF8C42',pants:'#22223A',...C2,front:'holdMid',prop:PROPS.boxes})+'</g>'
-   +person({x:650,shirt:'#29E6FF',pants:'#2A2A44',...C1,stand:true,flip:true,front:'holdMid',prop:PROPS.phone,head:'shakeHead'})),
- // 7 New Coke: one can in each hand, torn between them
- ()=>scene('<g class="tiltcans">'+person({x:400,shirt:'#E23A3A',pants:'#22223A',...C3,stand:true,front:'holdUp',back:'holdUp',prop:PROPS.can})+'</g>'
-   +person({x:590,shirt:'#B44CFF',pants:'#1E1E36',...C1,stand:true,flip:true,front:'holdMid',prop:PROPS.can2,head:'shakeHead'})),
- // 8 Qwikster: juggling two red envelopes while a friend shakes their head
- ()=>scene('<g transform="translate(360,52)"><g class="juggler"><rect x="-34" y="-8" width="24" height="15" rx="2" fill="#E23A3A"/><rect x="12" y="-8" width="24" height="15" rx="2" fill="#E23A3A"/></g></g>'
-   +person({x:360,shirt:'#29E6FF',pants:'#2A2A44',...C2,stand:true,front:'holdUp',back:'holdUp'})
-   +person({x:560,shirt:'#FFD166',pants:'#22223A',...C1,stand:true,flip:true,head:'shakeHead',front:'holdMid'})),
- // 9 Kodak: big old flash camera, a poser holds still
- ()=>scene(person({x:280,shirt:'#3A2E22',pants:'#22201A',...C1,stand:true,front:'holdUp',prop:PROPS.oldcam})
-   +person({x:540,shirt:'#FF2E88',pants:'#2E2E4E',...C2,stand:true,flip:true,front:'cheerArm',back:'holdMid'})),
- // 10 Slack: the chat bubble goes up, everyone celebrates
- ()=>scene(person({x:340,shirt:'#3DFFB4',pants:'#1E1E36',...C3,stand:true,front:'holdUp',prop:PROPS.bubble})
-   +person({x:500,shirt:'#FF6AB2',pants:'#26264A',...C1,stand:true,flip:true,front:'cheerArm'})
-   +'<g class="strollL">'+person({x:0,shirt:'#B44CFF',pants:'#22223A',...C2,flip:true,front:'cheerArm'})+'</g>')
-];
-function renderScene(qi){
-  const st = document.getElementById("charStage");
-  if(!st) return;
-  try{ st.innerHTML = SCENES[qi] ? SCENES[qi]() : ""; }catch(e){ st.innerHTML = ""; }
-}
 
 /* ================= STATE ================= */
 const POLL = window.__TEST_POLL__ || 1500;
@@ -978,6 +1030,7 @@ async function hostRead(){
   return JSON.parse(b64d(j.content));
 }
 async function hostWrite(state){
+  state.b = BUILD;
   for(let attempt = 0; attempt < 2; attempt++){
     const body = {message:"sync", content:b64e(JSON.stringify(state)), branch:gh.branch};
     if(gh.sha) body.sha = gh.sha;
@@ -1078,6 +1131,7 @@ async function hostConnect(){
   }
 }
 async function hostNewGame(){
+  if(role !== "host") return;
   sid = Date.now().toString(36) + Math.floor(Math.random()*99);
   entryList = [];
   const ok = await hostWrite({sid, phase:"lobby", qi:0});
@@ -1094,6 +1148,7 @@ async function hostNewGame(){
   setDock(null);
 }
 async function hostRestart(){
+  if(role !== "host") return;
   let sure = true;
   try{ sure = window.confirm("Start a fresh game from question 1? Everyone will return to the waiting screen."); }catch(e){}
   if(!sure) return;
@@ -1101,12 +1156,12 @@ async function hostRestart(){
 }
 function shareLink(){
   try{
-    const base = location.origin + location.pathname;
+    const base = location.origin + location.pathname + "?v=" + BUILD;
     return playerKey ? base + "#k=" + playerKey : base;
   }catch(e){ return ""; }
 }
 function renderShareCard(){
-  try{ document.getElementById("shareUrl").textContent = location.origin + location.pathname; }catch(e){}
+  try{ document.getElementById("shareUrl").textContent = location.origin + location.pathname + "?v=" + BUILD; }catch(e){}
   document.getElementById("shareKeyNote").style.display = playerKey ? "" : "none";
 }
 function copyLink(){
@@ -1121,6 +1176,7 @@ function copyLink(){
   }catch(e){}
 }
 function hostResume(){
+  if(role !== "host") return;
   const g = existingState;
   sid = g.sid;
   try{ entryList = JSON.parse(lsGet("hc_rows_"+sid) || "[]"); }catch(e){ entryList = []; }
@@ -1137,11 +1193,13 @@ function restoreHost(s){
   show("s-game");
 }
 async function hostStartGame(){
+  if(role !== "host") return;
   hostShowQuestion(0);
   const ok = await hostWrite({sid, phase:"q", qi:0});
   if(!ok){ writeFailToast(); renderShareCard(); show("s-lobby"); setDock(null); }
 }
 async function hostGoQuestion(qi){
+  if(role !== "host") return;
   const prev = snapHost();
   hostShowQuestion(qi);
   const ok = await hostWrite({sid, phase:"q", qi});
@@ -1153,6 +1211,7 @@ function hostShowQuestion(qi){
   setDock("reveal", qi);
 }
 async function hostReveal(){
+  if(role !== "host") return;
   const prev = snapHost();
   const state = {sid, phase:"reveal", qi:currentQi};
   renderReveal(state);
@@ -1169,6 +1228,7 @@ async function hostFwd(){
   await hostGoQuestion(currentQi + 1);
 }
 async function hostNext(){
+  if(role !== "host") return;
   if(currentQi < N-1){ await hostGoQuestion(currentQi + 1); }
   else{
     const prev = snapHost();
@@ -1180,6 +1240,7 @@ async function hostNext(){
   }
 }
 async function hostBackToLast(){
+  if(role !== "host") return;
   const state = {sid, phase:"reveal", qi:N-1};
   renderQuestionBase(N-1);
   renderReveal(state);
@@ -1215,6 +1276,7 @@ function addEntry(){
   renderEntries();
 }
 async function hostShowResults(){
+  if(role !== "host") return;
   const rows = entryList.slice().sort((a,b)=> b.score - a.score || a.name.localeCompare(b.name));
   renderBoard(rows);
   setDock(null);
@@ -1298,9 +1360,15 @@ function playerJoin(){
   document.getElementById("waitSub").textContent = "Looking for the game room…";
   startLoop(playerTick);
 }
+function verCheck(g){
+  const note = document.getElementById("verNote");
+  if(!note) return;
+  note.classList.toggle("show", !!(g && g.b !== BUILD));
+}
 async function playerTick(){
   const g = await readState();
   if(!g || !g.sid) return;
+  verCheck(g);
   if(sid !== g.sid){
     sid = g.sid; myScore = 0; lastRenderKey = "";
     me.ans = {};
@@ -1401,7 +1469,6 @@ function renderQuestionBase(qi){
   document.getElementById("lockline").textContent = (role==="player") ? "Tap A or B to lock your call." : "Read the question out loud, then give them 15 seconds.";
   document.getElementById("reveal").classList.remove("show");
   document.getElementById("resultBadge").className = "resultbadge";
-  renderScene(qi);
   resetCount();
 }
 function renderReveal(g){
