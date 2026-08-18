@@ -161,6 +161,24 @@ body::after{
 @keyframes flamk{to{transform:translateY(-3px)}}
 @media(max-width:520px){.flam{right:6%}}
 
+/* ============ HOST AUDIO BAR ============ */
+.audiobar{
+  display:none;position:fixed;left:16px;bottom:22px;z-index:21;
+  background:rgba(16,2,40,.94);border:2px solid var(--line);border-radius:999px;
+  padding:8px 12px;gap:8px;align-items:center;
+  box-shadow:0 0 24px rgba(41,230,255,.2),0 12px 30px rgba(0,0,20,.5);
+}
+.is-host .audiobar.on{display:flex}
+.audiobar .ablbl{font-family:var(--disp);font-size:11px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;padding:0 4px}
+.audiobar .abbtn{
+  width:38px;height:38px;border-radius:50%;border:2px solid var(--line);background:transparent;
+  color:#fff;font-size:14px;cursor:pointer;flex:none;
+}
+.audiobar .abbtn:hover{border-color:#fff}
+.audiobar .abtag{width:auto;border-radius:999px;padding:0 12px;font-family:var(--disp);font-size:10px;letter-spacing:.12em;color:var(--dim)}
+.audiobar .abtag.onp{color:var(--mint);border-color:rgba(61,255,180,.6)}
+@media(max-width:700px){.audiobar{left:8px;bottom:88px;padding:6px 8px}.audiobar .abbtn{width:32px;height:32px}}
+
 /* ============ VERSION STAMP + NOTICE ============ */
 .vstamp{
   position:fixed;right:10px;bottom:8px;z-index:4;
@@ -640,7 +658,8 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <div class="vernote" id="updNote" style="bottom:172px"></div>
 <div class="vernote" id="keyNote"></div>
 <div class="vernote" id="verNote" style="bottom:118px">The game was updated. Please close this tab and open the link from the Teams chat again.</div>
-<div class="vstamp">V12</div>
+<div class="vstamp">V13</div>
+<div class="audiobar" id="audioBar"></div>
 <div class="tribute" id="tribute"><div class="tname" id="tribName"></div><div class="tsub">★ In the house ★</div></div>
 
 <!-- ============ WELCOME ============ -->
@@ -685,12 +704,13 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
       <div class="field"><label for="ghRepo">Repository name</label><input id="ghRepo" autocomplete="off"></div>
       <div class="field"><label for="ghBranch">Branch</label><input id="ghBranch" value="main" autocomplete="off"></div>
       <div class="field"><label for="ghToken">Key 1 · Host key (Contents: read and write)</label><input id="ghToken" type="password" autocomplete="off" placeholder="github_pat_…"></div>
-      <div class="field"><label for="ghPlayerKey">Key 2 · Player key (read only)</label><input id="ghPlayerKey" type="password" autocomplete="off" placeholder="github_pat_…"><div class="fhint">Goes inside the share link so player screens update instantly. Make it with no extra permissions.</div></div>
+      <div class="field"><label for="ghPlayerKey">Key 2 · Player key (read only)</label><input id="ghPlayerKey" type="password" autocomplete="off" placeholder="github_pat_…"><div class="fhint">Goes inside the share link so player screens update instantly. Make it with no extra permissions. Both keys are remembered in this browser after the first connect.</div></div>
     </div>
     <div class="errline" id="connectErr"></div>
     <div class="welcome-btns" style="margin-top:8px">
       <button class="btn btn-primary btn-wide" id="btnConnect" onclick="hostConnect()">Connect</button>
       <button class="btn btn-ghost" onclick="show('s-welcome')">Back</button>
+      <button class="btn btn-ghost" onclick="forgetKeys()">Forget the saved keys</button>
     </div>
   </div>
 </section>
@@ -738,7 +758,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
         <button class="btn-ghost" id="btnLen" onclick="cycleLen()">Show length: 20 min</button>
       </div>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V12 in the bottom corner.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V13 in the bottom corner.</p>
   </div>
 </section>
 
@@ -870,7 +890,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
 
-const BUILD = "12";
+const BUILD = "13";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -1247,27 +1267,20 @@ async function selfUpdateCheck(){
     const n = document.getElementById("updNote");
     const act = document.querySelector(".screen.active");
     const actId = act ? act.id : "";
-    const canReload = (actId === "s-welcome" || actId === "s-wait" || actId === "s-join");
+    const hostSaved = (role === "host" && lsGet("hc_k1"));
+    const canReload =
+      (actId === "s-welcome" || actId === "s-wait" || actId === "s-join") ||
+      (role === "player") ||
+      (hostSaved && (actId === "s-lobby" || actId === "s-connect" || actId === "s-resume"));
     if(n){
-      n.textContent = canReload ? "A newer version of the game is loading…" : "A newer version is ready. Please reopen the link from the Teams chat.";
+      n.textContent = canReload ? "A newer version of the game is loading…" : "A newer version is ready. Tap here to update. Your keys are saved, you will be back in two taps.";
       n.classList.add("show");
-    }
-    if(canReload){
-      const guard = "hc_up_" + latest;
-      let done = null;
-      try{ done = sessionStorage.getItem(guard); }catch(e){}
-      if(!done){
-        try{ sessionStorage.setItem(guard, "1"); }catch(e){}
-        setTimeout(()=>{
-          try{
-            let u = location.pathname + "?v=" + latest;
-            if(playerKey) u += "&k=" + playerKey;
-            if(role === "player") u += "&rj=1";
-            location.replace(u);
-          }catch(e){}
-        }, 1600);
+      if(!canReload && hostSaved !== null){
+        n.onclick = function(){ selfHealTo(latest); };
+        n.style.cursor = "pointer";
       }
     }
+    if(canReload) selfHealTo(latest);
   }catch(e){}
 }
 
@@ -1276,6 +1289,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   if(id !== "s-game") hideTribute();
+  try{ updateBarForScreen(id); }catch(e){}
   try{ window.scrollTo(0,0); }catch(e){}
 }
 function hueOf(str){ let h=0; for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))%360; return h; }
@@ -1351,14 +1365,71 @@ function startPaceTick(){
 function stopPaceTick(){ if(paceT){ clearInterval(paceT); paceT = null; } const el = document.getElementById("paceChip"); if(el){ el.style.display = "none"; } }
 function aClear(){ autoTimers.forEach(clearTimeout); autoTimers = []; }
 function aT(fn, ms){ autoTimers.push(setTimeout(fn, ms)); }
-function stopClip(){ try{ if(curAudio){ curAudio.pause(); curAudio = null; } }catch(e){} }
-function playClip(name){
-  if(role !== "host" || !aiVoice || TPX) return;
+let autoPlayClips = lsGet("hc_autoplay") !== "off";
+let curName = null;
+let barNames = [], barIdx = 0;
+function stopClip(){ try{ if(curAudio){ curAudio.pause(); curAudio = null; } }catch(e){} try{ drawBar(false); }catch(e){} }
+function coreClip(name){
+  if(role !== "host" || !aiVoice || TPX){ barSet(name, false); return; }
   try{
-    stopClip();
+    try{ if(curAudio){ curAudio.pause(); curAudio = null; } }catch(e){}
+    curName = name;
     curAudio = new Audio("audio/" + name + ".mp3");
-    curAudio.play().catch(function(){});
+    curAudio.addEventListener("ended", function(){ barSet(name, false); });
+    curAudio.addEventListener("error", function(){ barSet(name, false); });
+    curAudio.play().then(function(){ barSet(name, true); }).catch(function(){ barSet(name, false); });
   }catch(e){}
+}
+function playClip(name){
+  if(!autoPlayClips){ barSet(name, false); return; }
+  coreClip(name);
+}
+function setAudioBar(names){
+  const bar = document.getElementById("audioBar");
+  if(!bar) return;
+  if(role !== "host" || !names || !names.length){
+    bar.classList.remove("on"); bar.innerHTML = ""; barNames = []; return;
+  }
+  barNames = names; barIdx = 0;
+  drawBar(false);
+  bar.classList.add("on");
+}
+function drawBar(playing){
+  const bar = document.getElementById("audioBar");
+  if(!bar || !barNames.length) return;
+  const nm = barNames[barIdx];
+  let h = '<span class="ablbl">🎙 ' + nm + '</span>';
+  h += '<button class="abbtn" id="abPlay" title="Play or pause this clip">' + (playing ? "⏸" : "▶") + '</button>';
+  h += '<button class="abbtn" id="abRe" title="Replay from the start">↺</button>';
+  if(barNames.length > 1) h += '<button class="abbtn" id="abNx" title="Next clip">⇥</button>';
+  h += '<button class="abbtn abtag' + (autoPlayClips ? " onp" : "") + '" id="abAuto" title="Play clips automatically on each screen">AUTO</button>';
+  h += '<button class="abbtn" id="abMute" title="Mute or unmute all voice">' + (aiVoice ? "🔊" : "🔇") + '</button>';
+  bar.innerHTML = h;
+  document.getElementById("abPlay").onclick = function(){
+    const n = barNames[barIdx];
+    if(curAudio && curName === n){
+      if(curAudio.paused){ try{ curAudio.play(); }catch(e){} drawBar(true); }
+      else { try{ curAudio.pause(); }catch(e){} drawBar(false); }
+    } else coreClip(n);
+  };
+  document.getElementById("abRe").onclick = function(){ coreClip(barNames[barIdx]); };
+  const nx = document.getElementById("abNx");
+  if(nx) nx.onclick = function(){ barIdx = (barIdx + 1) % barNames.length; drawBar(false); };
+  document.getElementById("abAuto").onclick = function(){
+    autoPlayClips = !autoPlayClips;
+    lsSet("hc_autoplay", autoPlayClips ? "on" : "off");
+    drawBar(!!(curAudio && curName === barNames[barIdx] && !curAudio.paused));
+  };
+  document.getElementById("abMute").onclick = function(){ toggleVoice(); };
+}
+function barSet(name, playing){ if(barNames.length && barNames[barIdx] === name) drawBar(playing); }
+function updateBarForScreen(id){
+  if(role !== "host"){ setAudioBar(null); return; }
+  if(id === "s-game"){ setAudioBar([(revealedNow ? "r" : "q") + (currentQi + 1)]); }
+  else if(id === "s-collect-host"){ setAudioBar(["collect"]); }
+  else if(id === "s-board"){ setAudioBar(["results", "winner"]); }
+  else if(id === "s-lobby"){ setAudioBar(["intro"]); }
+  else setAudioBar(null);
 }
 function waitClip(name, fbMs){
   return new Promise(function(res){
@@ -1368,9 +1439,10 @@ function waitClip(name, fbMs){
     try{
       stopClip();
       curAudio = new Audio("audio/" + name + ".mp3");
-      curAudio.addEventListener("ended", fin);
-      curAudio.addEventListener("error", function(){ aT(fin, 400); });
-      curAudio.play().catch(function(){ aT(fin, 400); });
+      curName = name;
+      curAudio.addEventListener("ended", function(){ barSet(name, false); fin(); });
+      curAudio.addEventListener("error", function(){ barSet(name, false); aT(fin, 400); });
+      curAudio.play().then(function(){ barSet(name, true); }).catch(function(){ aT(fin, 400); });
       aT(function(){ stopClip(); fin(); }, fbMs);
     }catch(e){ aT(fin, 600); }
   });
@@ -1437,6 +1509,7 @@ function toggleVoice(){
   lsSet("hc_voice", aiVoice ? "on" : "off");
   if(!aiVoice) stopClip();
   updateAutoUI();
+  try{ drawBar(false); }catch(e){}
 }
 function updateAutoUI(){
   const lb = document.getElementById("btnAuto");
@@ -1453,7 +1526,9 @@ function updateAutoUI(){
 
 /* ================= HOST ================= */
 function hostEnter(){
+  stopLoop();
   role = "host";
+  document.body.classList.remove("is-player");
   document.body.classList.add("is-host");
   const d = deriveRepo();
   const saved = lsGet("hc_repo");
@@ -1461,28 +1536,41 @@ function hostEnter(){
   document.getElementById("ghOwner").value  = (d && d.owner)  || (s && s.owner)  || "";
   document.getElementById("ghRepo").value   = (d && d.repo)   || (s && s.repo)   || "";
   document.getElementById("ghBranch").value = (d && d.branch) || (s && s.branch) || "main";
+  const k1 = lsGet("hc_k1"), k2 = lsGet("hc_k2");
+  if(k1) document.getElementById("ghToken").value = k1;
+  if(k2) document.getElementById("ghPlayerKey").value = k2;
   show("s-connect");
+}
+function forgetKeys(){
+  try{ localStorage.removeItem("hc_k1"); localStorage.removeItem("hc_k2"); }catch(e){}
+  document.getElementById("ghToken").value = "";
+  document.getElementById("ghPlayerKey").value = "";
 }
 async function hostConnect(){
   gh.owner  = document.getElementById("ghOwner").value.trim();
   gh.repo   = document.getElementById("ghRepo").value.trim();
   gh.branch = document.getElementById("ghBranch").value.trim() || "main";
-  gh.token  = document.getElementById("ghToken").value.trim();
-  playerKey = document.getElementById("ghPlayerKey").value.trim();
+  gh.token  = document.getElementById("ghToken").value.replace(/\s+/g, "");
+  playerKey = document.getElementById("ghPlayerKey").value.replace(/\s+/g, "");
   const err = document.getElementById("connectErr");
   err.textContent = "";
   if(!gh.owner || !gh.repo || !gh.token){ err.textContent = "Please fill the username, repository, and Key 1."; return; }
   document.getElementById("btnConnect").disabled = true;
   try{
     const r = await fetch("https://api.github.com/repos/" + gh.owner + "/" + gh.repo, {headers:hdr(), cache:"no-store"});
-    if(!r.ok) throw new Error(String(r.status));
+    if(!r.ok){ const err2 = new Error(String(r.status)); err2.st = r.status; throw err2; }
     lsSet("hc_repo", JSON.stringify({owner:gh.owner, repo:gh.repo, branch:gh.branch}));
+    lsSet("hc_k1", gh.token);
+    lsSet("hc_k2", playerKey);
     existingState = null;
     try{ existingState = await hostRead(); }catch(e){}
     if(existingState && existingState.sid && existingState.phase !== "end"){ show("s-resume"); }
     else { await hostNewGame(); }
   }catch(e){
-    err.textContent = "Could not connect. Check the username, repository, and Key 1.";
+    const st = e && e.st;
+    if(st === 401) err.textContent = "Could not connect. GitHub rejected Key 1. Open the key on GitHub: it must be Active, and it must include this exact repository with Contents: Read and write.";
+    else if(st === 403) err.textContent = "Could not connect. GitHub is limiting this network right now. Wait one minute and press Connect again.";
+    else err.textContent = "Could not connect. Check the username, repository, and Key 1.";
   }finally{
     document.getElementById("btnConnect").disabled = false;
   }
@@ -1751,9 +1839,31 @@ function verCheck(g){
   const note = document.getElementById("verNote");
   if(!note) return;
   const fresh = g && typeof g.t === "number" && (Date.now() - g.t) < 120000;
-  note.classList.toggle("show", !!(fresh && g.b !== BUILD));
+  const mine = parseInt(BUILD, 10);
+  const theirs = g ? parseInt(g.b, 10) : NaN;
+  if(fresh && !isNaN(theirs) && theirs > mine){
+    note.textContent = "Updating to the newest version…";
+    note.classList.add("show");
+    selfHealTo(theirs);
+  } else {
+    note.classList.remove("show");
+  }
+}
+function selfHealTo(latest){
+  const guard = "hc_heal_" + latest;
+  let done = null;
+  try{ done = sessionStorage.getItem(guard); }catch(e){}
+  if(done) return;
+  try{ sessionStorage.setItem(guard, "1"); }catch(e){}
+  let u = location.pathname + "?v=" + latest;
+  if(playerKey) u += "&k=" + playerKey;
+  if(role === "player") u += "&rj=1";
+  if(role === "host" && lsGet("hc_k1")) u += "&hostback=1";
+  if(window.__TEST_POLL__){ window.__healed = u; return; }
+  setTimeout(function(){ try{ location.replace(u); }catch(e){} }, 900);
 }
 async function playerTick(){
+  if(role !== "player") return;
   const g = await readState();
   keyNoteCheck();
   if(!g || !g.sid) return;
@@ -1859,6 +1969,7 @@ function renderQuestionBase(qi){
   document.getElementById("reveal").classList.remove("show");
   document.getElementById("resultBadge").className = "resultbadge";
   renderTribute(qi);
+  if(role === "host"){ try{ updateBarForScreen("s-game"); }catch(e){} }
   resetCount();
 }
 function renderReveal(g){
@@ -1891,6 +2002,7 @@ function renderReveal(g){
   }
   document.getElementById("reveal").classList.add("show");
   document.getElementById("lockline").textContent = "";
+  if(role === "host"){ try{ updateBarForScreen("s-game"); }catch(e){} }
   resetCount();
 }
 
@@ -1986,6 +2098,19 @@ function stopLoop(){
         if(el) el.value = nm;
         setTimeout(function(){ try{ playerJoin(); }catch(e){} }, 350);
       }
+    }
+  }catch(e){}
+})();
+(function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    if(q.get("hostback") === "1" && lsGet("hc_k1")){
+      setTimeout(function(){
+        try{
+          hostEnter();
+          hostConnect();
+        }catch(e){}
+      }, 450);
     }
   }catch(e){}
 })();
