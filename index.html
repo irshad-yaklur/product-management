@@ -186,6 +186,7 @@ body::after{
   text-shadow:0 0 8px rgba(41,230,255,.5);pointer-events:none;
 }
 .vernote{
+  pointer-events:none;
   position:fixed;left:50%;bottom:64px;transform:translateX(-50%) translateY(200%);z-index:70;
   background:rgba(90,50,4,.95);border:2px solid var(--gold);color:#FFE9B8;
   border-radius:14px;padding:12px 18px;font-weight:600;font-size:14px;max-width:min(92vw,440px);text-align:center;
@@ -657,8 +658,8 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <div class="synctoast" id="synctoast"></div>
 <div class="vernote" id="updNote" style="bottom:172px"></div>
 <div class="vernote" id="keyNote"></div>
-<div class="vernote" id="verNote" style="bottom:118px">The game was updated. Please close this tab and open the link from the Teams chat again.</div>
-<div class="vstamp">V13</div>
+<div class="vernote" id="verNote" style="bottom:118px"></div>
+<div class="vstamp">V15</div>
 <div class="audiobar" id="audioBar"></div>
 <div class="tribute" id="tribute"><div class="tname" id="tribName"></div><div class="tsub">★ In the house ★</div></div>
 
@@ -758,7 +759,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
         <button class="btn-ghost" id="btnLen" onclick="cycleLen()">Show length: 20 min</button>
       </div>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V13 in the bottom corner.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V15 in the bottom corner.</p>
   </div>
 </section>
 
@@ -890,7 +891,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
 
-const BUILD = "13";
+const BUILD = "15";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -1027,7 +1028,10 @@ let writeSeq = 0;
   try{
     const m = (location.hash + "&" + location.search).match(/[#?&]k=([A-Za-z0-9_.\-]+)/);
     if(m) playerKey = m[1];
+    if(playerKey){ lsSet("hc_pk", playerKey); }
+    else { playerKey = lsGet("hc_pk") || ""; }
   }catch(e){}
+  try{ window.__pk = playerKey; }catch(e){}
 })();
 
 
@@ -1076,7 +1080,7 @@ function deriveRepo(){
 }
 
 /* ================= SYNC · PLAYER READ ================= */
-let lastReadStatus = 0, keyBad = false;
+let lastReadStatus = 0, keyBad = false, fbStreak = 0;
 function contentsURL(){
   return "https://api.github.com/repos/" + gh.owner + "/" + gh.repo + "/contents/" + STATE_PATH + "?ref=" + gh.branch;
 }
@@ -1134,6 +1138,7 @@ async function readState(){
     best = freshest(best, pair[0], pair[1]);
     if(best){
       setLive(true);
+      fbStreak++;
       delayMs = window.__TEST_POLL__ ? POLL : 2500;
     } else {
       slowDown();
@@ -1146,7 +1151,7 @@ async function readState(){
   return best;
 }
 function readOk(){
-  setLive(true); failStreak = 0;
+  setLive(true); failStreak = 0; fbStreak = 0;
   delayMs = (typeof document !== "undefined" && document.hidden) ? 6000 : POLL;
 }
 function slowDown(){ delayMs = Math.min(10000, Math.round(POLL * Math.pow(1.7, Math.min(failStreak, 4)))); }
@@ -1212,18 +1217,45 @@ function writeFailToast(){
 }
 
 /* ================= LINK HEALTH NOTES ================= */
+let keyNoteShown = false, keyNoteT = null;
 function keyNoteCheck(){
   const n = document.getElementById("keyNote");
   if(!n || role !== "player") return;
   let msg = "";
-  if(keyBad) msg = "The key inside this link has stopped working. Ask the host to copy a fresh link from the lobby.";
-  else if(!playerKey) msg = "This link is missing its key, so updates may be slower. Ask the host to copy the link again from the lobby.";
-  if(msg){ n.textContent = msg; n.classList.add("show"); }
-  else n.classList.remove("show");
+  if(keyBad) msg = "The key inside this link has stopped working. Ask the host to send a fresh link from the lobby.";
+  else if(!playerKey && fbStreak >= 2) msg = "Slow link mode. Updates may take a few extra seconds. Open the game once from the link in the Teams chat to speed this phone up.";
+  if(msg){
+    if(keyNoteShown) return;
+    keyNoteShown = true;
+    n.textContent = msg;
+    n.classList.add("show");
+    clearTimeout(keyNoteT);
+    keyNoteT = setTimeout(function(){ n.classList.remove("show"); }, window.__TEST_POLL__ ? 600 : 10000);
+  } else {
+    n.classList.remove("show");
+  }
 }
 let chanT = null;
+let clipReport = null;
+const CLIP_NAMES = (function(){
+  const a = ["intro", "timeup", "collect", "results", "winner"];
+  for(let i = 1; i <= 12; i++){ a.push("q" + i); a.push("r" + i); }
+  return a;
+})();
+async function checkClips(){
+  const missing = [];
+  await Promise.all(CLIP_NAMES.map(async function(n){
+    try{
+      const u = new URL("audio/" + n + ".mp3", location.href).toString();
+      const r = await fetch(u, {method:"HEAD", cache:"no-store"});
+      if(!r.ok) missing.push(n);
+    }catch(e){ missing.push(n); }
+  }));
+  clipReport = {total: CLIP_NAMES.length, missing: missing.sort()};
+}
 function startChanCheck(){
   stopChanCheck();
+  clipReport = null;
   const MS = window.__TEST_POLL__ ? 120 : 3000;
   const run = async () => {
     const lob = document.getElementById("s-lobby");
@@ -1231,6 +1263,7 @@ function startChanCheck(){
     const a = await apiRead();
     const j = await jsdRead();
     const rw = await rawRead();
+    if(!clipReport) await checkClips();
     const el = document.getElementById("chanStatus");
     if(!el) return;
     const mainOk = a.ok && lastReadStatus !== 404;
@@ -1245,6 +1278,17 @@ function startChanCheck(){
     html += '<span class="cs ' + (mainOk ? 'g' : 'r') + '">Main player channel: ' + (mainOk ? "working" : (lastReadStatus === 401 ? "key rejected" : "blocked here")) + "</span>";
     html += '<span class="cs ' + (jFresh ? 'g' : 'y') + '">Backup 1 fast mirror: ' + (jFresh ? "fresh" : "catching up") + "</span>";
     html += '<span class="cs ' + (rFresh ? 'g' : 'y') + '">Backup 2 slow mirror: ' + (rFresh ? "fresh" : "catching up, up to 5 minutes") + "</span>";
+    if(clipReport){
+      const ok = clipReport.total - clipReport.missing.length;
+      if(clipReport.missing.length === 0){
+        html += '<span class="cs g">Voice clips: ' + ok + ' of ' + clipReport.total + ' ready</span>';
+      } else if(clipReport.missing.length === clipReport.total){
+        html += '<span class="cs y">Voice clips: none found yet. Upload the audio folder, or play without voice.</span>';
+      } else {
+        html += '<span class="cs r">Voice clips missing: ' + clipReport.missing.join(", ") + '</span>';
+      }
+    }
+    html += '<span class="cs">This device is running V' + BUILD + '</span>';
     el.className = cls;
     el.innerHTML = html;
   };
@@ -1278,6 +1322,7 @@ async function selfUpdateCheck(){
       if(!canReload && hostSaved !== null){
         n.onclick = function(){ selfHealTo(latest); };
         n.style.cursor = "pointer";
+        n.style.pointerEvents = "auto";
       }
     }
     if(canReload) selfHealTo(latest);
@@ -1369,6 +1414,13 @@ let autoPlayClips = lsGet("hc_autoplay") !== "off";
 let curName = null;
 let barNames = [], barIdx = 0;
 function stopClip(){ try{ if(curAudio){ curAudio.pause(); curAudio = null; } }catch(e){} try{ drawBar(false); }catch(e){} }
+const clipErrSeen = {};
+function clipTrouble(name){
+  barSet(name, false);
+  if(clipErrSeen[name]) return;
+  clipErrSeen[name] = true;
+  toast("Could not play audio/" + name + ".mp3. Check that this exact file name exists in the audio folder.");
+}
 function coreClip(name){
   if(role !== "host" || !aiVoice || TPX){ barSet(name, false); return; }
   try{
@@ -1376,8 +1428,8 @@ function coreClip(name){
     curName = name;
     curAudio = new Audio("audio/" + name + ".mp3");
     curAudio.addEventListener("ended", function(){ barSet(name, false); });
-    curAudio.addEventListener("error", function(){ barSet(name, false); });
-    curAudio.play().then(function(){ barSet(name, true); }).catch(function(){ barSet(name, false); });
+    curAudio.addEventListener("error", function(){ clipTrouble(name); });
+    curAudio.play().then(function(){ barSet(name, true); }).catch(function(){ clipTrouble(name); });
   }catch(e){}
 }
 function playClip(name){
@@ -1406,13 +1458,17 @@ function drawBar(playing){
   h += '<button class="abbtn" id="abMute" title="Mute or unmute all voice">' + (aiVoice ? "🔊" : "🔇") + '</button>';
   bar.innerHTML = h;
   document.getElementById("abPlay").onclick = function(){
+    if(!aiVoice){ aiVoice = true; lsSet("hc_voice", "on"); updateAutoUI(); }
     const n = barNames[barIdx];
     if(curAudio && curName === n){
       if(curAudio.paused){ try{ curAudio.play(); }catch(e){} drawBar(true); }
       else { try{ curAudio.pause(); }catch(e){} drawBar(false); }
     } else coreClip(n);
   };
-  document.getElementById("abRe").onclick = function(){ coreClip(barNames[barIdx]); };
+  document.getElementById("abRe").onclick = function(){
+    if(!aiVoice){ aiVoice = true; lsSet("hc_voice", "on"); updateAutoUI(); }
+    coreClip(barNames[barIdx]);
+  };
   const nx = document.getElementById("abNx");
   if(nx) nx.onclick = function(){ barIdx = (barIdx + 1) % barNames.length; drawBar(false); };
   document.getElementById("abAuto").onclick = function(){
@@ -1562,6 +1618,8 @@ async function hostConnect(){
     lsSet("hc_repo", JSON.stringify({owner:gh.owner, repo:gh.repo, branch:gh.branch}));
     lsSet("hc_k1", gh.token);
     lsSet("hc_k2", playerKey);
+    if(playerKey) lsSet("hc_pk", playerKey);
+    try{ window.__pk = playerKey; }catch(e){}
     existingState = null;
     try{ existingState = await hostRead(); }catch(e){}
     if(existingState && existingState.sid && existingState.phase !== "end"){ show("s-resume"); }
