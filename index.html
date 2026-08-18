@@ -187,13 +187,14 @@ body::after{
 }
 .vernote{
   pointer-events:none;
+  opacity:0;visibility:hidden;
   position:fixed;left:50%;bottom:64px;transform:translateX(-50%) translateY(200%);z-index:70;
   background:rgba(90,50,4,.95);border:2px solid var(--gold);color:#FFE9B8;
   border-radius:14px;padding:12px 18px;font-weight:600;font-size:14px;max-width:min(92vw,440px);text-align:center;
   box-shadow:0 0 24px rgba(255,209,102,.45);
   transition:transform .4s var(--spring);
 }
-.vernote.show{transform:translateX(-50%) translateY(0)}
+.vernote.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 
 
 /* ============ NEON NAME TRIBUTE ============ */
@@ -659,7 +660,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <div class="vernote" id="updNote" style="bottom:172px"></div>
 <div class="vernote" id="keyNote"></div>
 <div class="vernote" id="verNote" style="bottom:118px"></div>
-<div class="vstamp">V15</div>
+<div class="vstamp">V16</div>
 <div class="audiobar" id="audioBar"></div>
 <div class="tribute" id="tribute"><div class="tname" id="tribName"></div><div class="tsub">★ In the house ★</div></div>
 
@@ -759,7 +760,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
         <button class="btn-ghost" id="btnLen" onclick="cycleLen()">Show length: 20 min</button>
       </div>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V15 in the bottom corner.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V16 in the bottom corner.</p>
   </div>
 </section>
 
@@ -891,7 +892,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
 
-const BUILD = "15";
+const BUILD = "16";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -1120,6 +1121,14 @@ async function jsdRead(){
   }catch(e){}
   return null;
 }
+async function pagesRead(){
+  try{
+    const dir = location.pathname.replace(/[^/]*$/, "");
+    const r = await fetch(location.origin + dir + "state.json?pg=" + Date.now(), {cache:"no-store"});
+    if(r.ok) return await r.json();
+  }catch(e){}
+  return null;
+}
 async function rawRead(){
   try{
     const r = await fetch("https://raw.githubusercontent.com/" + gh.owner + "/" + gh.repo + "/" + gh.branch + "/" + STATE_PATH + "?f=" + Date.now(), {cache:"no-store"});
@@ -1134,9 +1143,17 @@ async function readState(){
     readOk();
   } else {
     failStreak++;
-    const pair = await Promise.all([jsdRead(), rawRead()]);
-    best = freshest(best, pair[0], pair[1]);
+    const pair = await Promise.all([jsdRead(), rawRead(), pagesRead()]);
+    best = freshest(best, pair[0], pair[1], pair[2]);
     if(best){
+      const knownSid = lastGood && best.sid === lastGood.sid;
+      const age = Date.now() - tOf(best);
+      if(!knownSid && best.phase !== "lobby" && (tOf(best) === 0 || age > 180000)){
+        setLive(true);
+        fbStreak++;
+        delayMs = window.__TEST_POLL__ ? POLL : 2500;
+        return lastGood;
+      }
       setLive(true);
       fbStreak++;
       delayMs = window.__TEST_POLL__ ? POLL : 2500;
@@ -1263,21 +1280,24 @@ function startChanCheck(){
     const a = await apiRead();
     const j = await jsdRead();
     const rw = await rawRead();
+    const pg = await pagesRead();
     if(!clipReport) await checkClips();
     const el = document.getElementById("chanStatus");
     if(!el) return;
     const mainOk = a.ok && lastReadStatus !== 404;
     const jFresh = j && j.sid === sid;
     const rFresh = rw && rw.sid === sid;
+    const pFresh = pg && pg.sid === sid;
     let verdict, cls;
     if(mainOk){ verdict = "READY. Copy the link below and share it."; cls = "chanline ok"; }
     else if(lastReadStatus === 401){ verdict = "Key 2 is wrong or expired. Make a fresh read-only key and reconnect."; cls = "chanline bad"; }
-    else if(jFresh || rFresh){ verdict = "Ready through the backup channel. Share the copied link."; cls = "chanline warn"; }
+    else if(jFresh || rFresh || pFresh){ verdict = "Ready through the backup channel. Share the copied link."; cls = "chanline warn"; }
     else { verdict = "Cannot reach GitHub from this device. Check the internet."; cls = "chanline bad"; }
     let html = "<b>" + verdict + "</b>";
     html += '<span class="cs ' + (mainOk ? 'g' : 'r') + '">Main player channel: ' + (mainOk ? "working" : (lastReadStatus === 401 ? "key rejected" : "blocked here")) + "</span>";
     html += '<span class="cs ' + (jFresh ? 'g' : 'y') + '">Backup 1 fast mirror: ' + (jFresh ? "fresh" : "catching up") + "</span>";
     html += '<span class="cs ' + (rFresh ? 'g' : 'y') + '">Backup 2 slow mirror: ' + (rFresh ? "fresh" : "catching up, up to 5 minutes") + "</span>";
+    html += '<span class="cs ' + (pFresh ? 'g' : 'y') + '">Backup 3 site mirror: ' + (pFresh ? "fresh" : "catching up, about a minute") + "</span>";
     if(clipReport){
       const ok = clipReport.total - clipReport.missing.length;
       if(clipReport.missing.length === 0){
