@@ -34,7 +34,6 @@
 html,body{min-height:100%}
 body{
   background:linear-gradient(180deg,#0E0126 0%,#2B0A4E 34%,#6A1B6E 56%,#C22B76 72%,#FF5A57 86%,#FF8C42 100%);
-  background-attachment:fixed;
   color:var(--ink);
   font-family:var(--body);
   font-size:16.5px;line-height:1.5;
@@ -48,7 +47,8 @@ body::after{
 /* ==================================================================
    MIAMI DUSK · living cityscape
    ================================================================== */
-.miami{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.miami{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:layout style paint}
+.sleep .miami *,.sleep .tribute,.sleep .orb,.sleep .pulse{animation-play-state:paused!important}
 .stars{
   position:absolute;inset:0 0 55% 0;
   background-image:
@@ -129,12 +129,16 @@ body::after{
 }
 .glitter{
   position:absolute;left:50%;transform:translateX(-50%);top:0;bottom:0;width:min(40vw,250px);
-  background:repeating-linear-gradient(0deg,rgba(255,150,100,.30) 0 3px,transparent 3px 15px);
+  overflow:hidden;
   mask-image:linear-gradient(to bottom,rgba(0,0,0,.95),transparent 82%);
   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.95),transparent 82%);
-  animation:glitk 2.8s linear infinite;
 }
-@keyframes glitk{to{background-position:0 15px}}
+.glitter::before{
+  content:"";position:absolute;left:0;right:0;top:-15px;bottom:-15px;
+  background:repeating-linear-gradient(0deg,rgba(255,150,100,.30) 0 3px,transparent 3px 15px);
+  animation:glitk 2.8s linear infinite;will-change:transform;
+}
+@keyframes glitk{to{transform:translateY(15px)}}
 .wv{
   position:absolute;left:-140px;right:-140px;height:2px;opacity:.5;
   background:repeating-linear-gradient(90deg,rgba(150,110,230,.5) 0 70px,transparent 70px 160px);
@@ -660,7 +664,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
 <div class="vernote" id="updNote" style="bottom:172px"></div>
 <div class="vernote" id="keyNote"></div>
 <div class="vernote" id="verNote" style="bottom:118px"></div>
-<div class="vstamp">V16</div>
+<div class="vstamp">V18</div>
 <div class="audiobar" id="audioBar"></div>
 <div class="tribute" id="tribute"><div class="tname" id="tribName"></div><div class="tsub">★ In the house ★</div></div>
 
@@ -760,7 +764,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
         <button class="btn-ghost" id="btnLen" onclick="cycleLen()">Show length: 20 min</button>
       </div>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V16 in the bottom corner.</p>
+    <p class="sub" style="margin-top:18px;font-size:14px">Share only this copied link. It always opens the newest version.<br>Every device should show V18 in the bottom corner.</p>
   </div>
 </section>
 
@@ -892,7 +896,7 @@ h2{font-family:var(--disp);font-size:clamp(26px,5.6vw,42px);line-height:1.15;tex
    Players need no GitHub account. Delete the repo and both keys after.
    ===================================================================== */
 
-const BUILD = "16";
+const BUILD = "18";
 
 /* ================= QUESTIONS ================= */
 const Q = [
@@ -1007,7 +1011,7 @@ const Q = [
 const N = Q.length;
 
 /* ================= STATE ================= */
-const POLL = window.__TEST_POLL__ || 1500;
+const POLL = window.__TEST_POLL__ || 1000;
 const STATE_PATH = "state.json";
 let role = null;
 let sid = null;
@@ -1081,7 +1085,7 @@ function deriveRepo(){
 }
 
 /* ================= SYNC · PLAYER READ ================= */
-let lastReadStatus = 0, keyBad = false, fbStreak = 0;
+let lastReadStatus = 0, keyBad = false, fbStreak = 0, lastPurge = 0, apiBlockedUntil = 0;
 function contentsURL(){
   return "https://api.github.com/repos/" + gh.owner + "/" + gh.repo + "/contents/" + STATE_PATH + "?ref=" + gh.branch;
 }
@@ -1096,6 +1100,7 @@ function freshest(){
   return best;
 }
 async function apiRead(){
+  if(Date.now() < apiBlockedUntil) return {ok:false, data:null};
   try{
     const headers = {"Accept":"application/vnd.github.raw"};
     if(playerKey) headers["Authorization"] = "Bearer " + playerKey;
@@ -1111,6 +1116,7 @@ async function apiRead(){
     }
     if(r.status === 404) return {ok:true, data:null};
     if(r.status === 401) keyBad = true;
+    if(r.status === 403 || r.status === 429) apiBlockedUntil = Date.now() + (window.__TEST_POLL__ ? 400 : 45000);
   }catch(e){ lastReadStatus = 0; }
   return {ok:false, data:null};
 }
@@ -1120,6 +1126,14 @@ async function jsdRead(){
     if(r.ok) return await r.json();
   }catch(e){}
   return null;
+}
+function purgeMirror(){
+  const now = Date.now();
+  if(now - lastPurge < (window.__TEST_POLL__ ? 300 : 30000)) return;
+  lastPurge = now;
+  try{
+    fetch("https://purge.jsdelivr.net/gh/" + gh.owner + "/" + gh.repo + "@" + gh.branch + "/" + STATE_PATH).catch(function(){});
+  }catch(e){}
 }
 async function pagesRead(){
   try{
@@ -1143,6 +1157,7 @@ async function readState(){
     readOk();
   } else {
     failStreak++;
+    purgeMirror();
     const pair = await Promise.all([jsdRead(), rawRead(), pagesRead()]);
     best = freshest(best, pair[0], pair[1], pair[2]);
     if(best){
@@ -1151,12 +1166,12 @@ async function readState(){
       if(!knownSid && best.phase !== "lobby" && (tOf(best) === 0 || age > 180000)){
         setLive(true);
         fbStreak++;
-        delayMs = window.__TEST_POLL__ ? POLL : 2500;
+        delayMs = window.__TEST_POLL__ ? POLL : 2000;
         return lastGood;
       }
       setLive(true);
       fbStreak++;
-      delayMs = window.__TEST_POLL__ ? POLL : 2500;
+      delayMs = window.__TEST_POLL__ ? POLL : 2000;
     } else {
       slowDown();
       setLive(false);
@@ -1173,7 +1188,14 @@ function readOk(){
 }
 function slowDown(){ delayMs = Math.min(10000, Math.round(POLL * Math.pow(1.7, Math.min(failStreak, 4)))); }
 try{
-  document.addEventListener("visibilitychange", ()=>{ delayMs = document.hidden ? 6000 : POLL; });
+  document.addEventListener("visibilitychange", ()=>{
+    delayMs = document.hidden ? 6000 : POLL;
+    try{ document.body.classList.toggle("sleep", !!document.hidden); }catch(e){}
+    if(!document.hidden) kickLoop();
+  });
+  window.addEventListener("focus", ()=>{ kickLoop(); });
+  window.addEventListener("pageshow", ()=>{ kickLoop(); });
+  window.addEventListener("online", ()=>{ kickLoop(); });
 }catch(e){}
 
 /* ================= SYNC · HOST WRITE ================= */
@@ -2147,19 +2169,30 @@ function launchConfetti(){
 }
 
 /* ================= LOOP ================= */
+let loopFn = null, loopBusy = false;
+async function runLoop(){
+  if(loopStopped || !loopFn) return;
+  loopBusy = true;
+  try{ await loopFn(); }catch(e){}
+  loopBusy = false;
+  if(loopStopped) return;
+  loopTimer = setTimeout(runLoop, delayMs);
+}
 function startLoop(fn){
   stopLoop();
+  loopFn = fn;
   loopStopped = false;
-  (async function run(){
-    if(loopStopped) return;
-    try{ await fn(); }catch(e){}
-    if(loopStopped) return;
-    loopTimer = setTimeout(run, delayMs);
-  })();
+  runLoop();
 }
 function stopLoop(){
   loopStopped = true;
   if(loopTimer){ clearTimeout(loopTimer); loopTimer = null; }
+}
+function kickLoop(){
+  if(loopStopped || !loopFn || loopBusy) return;
+  if(loopTimer){ clearTimeout(loopTimer); loopTimer = null; }
+  delayMs = POLL;
+  runLoop();
 }
 
 (function(){
